@@ -393,6 +393,11 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
   color: var(--text); margin-bottom: 5px; line-height: 1.6;
 }
 .recipe-content strong { font-weight: 600; color: var(--text); }
+.recipe-content a {
+  color: var(--accent); text-decoration: underline; text-decoration-color: var(--border);
+  word-break: break-all;
+}
+.recipe-content a:hover { text-decoration-color: var(--accent); }
 .recipe-content em { font-style: italic; color: var(--text-sub); }
 .recipe-content hr {
   border: none; border-top: 1.5px solid var(--border); margin: 20px 0;
@@ -841,7 +846,11 @@ function renderMd(text) {
 
   const inline = s => s
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+    .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
+    // Auto-link bare URLs (most recipe "Source:" lines are plain text,
+    // not markdown link syntax). Trims trailing punctuation/brackets that
+    // are almost always sentence punctuation rather than part of the URL.
+    .replace(/(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]])/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
 
   // Table parsing
   let tableLines = [];
