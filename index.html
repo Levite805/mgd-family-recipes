@@ -462,6 +462,39 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
 .recipe-content li {
   color: var(--text); margin-bottom: 5px; line-height: 1.6;
 }
+/* Ingredient (and other) bullet lists double as tappable checklists --
+   ordered-list steps are untouched, only <ul><li> gets the checkbox
+   treatment. list-style is dropped in favor of a custom checkbox drawn
+   with ::before so the tap target and check glyph can be styled/sized
+   for touch use (tablets in particular). State is plain CSS class
+   toggling done in JS (see the delegated click listener), not persisted
+   -- reopening a recipe always starts unchecked. */
+.recipe-content ul {
+  list-style: none; margin: 6px 0 14px 0; padding-left: 0;
+}
+.recipe-content ul li {
+  position: relative; padding: 5px 0 5px 32px; margin-bottom: 2px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  user-select: none; border-radius: 6px;
+  transition: color 0.15s;
+}
+.recipe-content ul li:hover { background: var(--chip-bg); }
+.recipe-content ul li::before {
+  content: '✓';
+  position: absolute; left: 0; top: 4px;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: transparent;
+  font-size: 14px; font-weight: 700; line-height: 1;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.recipe-content ul li.checked::before {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.recipe-content ul li.checked {
+  text-decoration: line-through; color: var(--text-muted);
+}
 .recipe-content strong { font-weight: 600; color: var(--text); }
 .recipe-content a {
   color: var(--accent); text-decoration: underline; text-decoration-color: var(--border);
@@ -1370,6 +1403,18 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
+});
+
+// Tappable checklist bullets -- delegated on the (stable) container
+// rather than the individual <li> elements, since #modalContent's
+// innerHTML is fully replaced by renderMd() every time a recipe modal
+// opens (or the scale bar rewrites li contents), which would otherwise
+// wipe out any listeners bound directly to the list items themselves.
+document.getElementById('modalContent').addEventListener('click', e => {
+  if (e.target.closest('a')) return; // let "Source:" links etc. still work normally
+  const li = e.target.closest('li');
+  if (!li || li.parentElement.tagName !== 'UL') return;
+  li.classList.toggle('checked');
 });
 
 document.querySelectorAll('.chip').forEach(chip => {
