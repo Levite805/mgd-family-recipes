@@ -164,8 +164,15 @@ def build_recipe(item: dict, categories: dict, review: list, photos: dict) -> di
     uuid = item["uuid"]
     overview = item.get("overview", {})
     details = item.get("details", {})
-    title = overview.get("title", "")
-    ainfo = overview.get("ainfo") or title
+    # .strip() guards against stray leading/trailing whitespace in the
+    # 1Password title field (e.g. " Smoked Asparagus" with a leading
+    # space) -- harmless-looking in 1Password itself, but it broke every
+    # client-side sort option on the site: title sort put it first via
+    # localeCompare, and both the "Updated" sort's stable-sort tie-
+    # breaking and the "Rating" sort's unrated-fallback both fall back to
+    # comparing titles, so the same stray-space recipe won every tie too.
+    title = overview.get("title", "").strip()
+    ainfo = (overview.get("ainfo") or title).strip()
     tags = overview.get("tags", [])
     notes = details.get("notesPlain", "")
     cookbook = details.get("source") == "The Gruenberg Family Cook Book"
