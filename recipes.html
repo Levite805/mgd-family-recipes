@@ -713,7 +713,7 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
         <div class="notes-list" id="notesList"></div>
         <form class="note-form" id="noteForm">
           <div class="note-form-row">
-            <span class="note-form-label">Your rating</span>
+            <span class="note-form-label">Your rating (optional)</span>
             <div class="star-picker" id="starPicker" role="radiogroup" aria-label="Rating">
               <button type="button" class="star-btn" data-star="1" aria-label="1 star">★</button>
               <button type="button" class="star-btn" data-star="2" aria-label="2 stars">★</button>
@@ -822,6 +822,10 @@ const CAT_LABELS = {
 // ── STATE
 let activeFilter = 'all';
 let searchQuery = '';
+let modalPhotoBase = [];        // curated photos for the open recipe (r.photos/r.image)
+let modalCommunityPhotos = [];  // visitor-submitted photos for the open recipe, from Firestore
+let modalCarouselIdx = 0;
+let modalRecipeTitle = '';
 
 // ── MARKDOWN RENDERER
 function renderMd(text) {
@@ -1043,43 +1047,11 @@ function openModal(r) {
   document.getElementById('modalContent').innerHTML = renderMd(r.notes);
   setupScaleBar();
 
-  const carousel = document.getElementById('modalCarousel');
-  const track = document.getElementById('carouselTrack');
-  const dotsEl = document.getElementById('carouselDots');
-  const prevBtn = document.getElementById('carouselPrev');
-  const nextBtn = document.getElementById('carouselNext');
-  const photoList = (r.photos && r.photos.length) ? r.photos : (r.image ? [r.image] : []);
-
-  if (photoList.length) {
-    carousel.style.display = 'block';
-    const multi = photoList.length > 1;
-    dotsEl.innerHTML = multi
-      ? photoList.map((_, i) => `<button class="carousel-dot" data-i="${i}" aria-label="Photo ${i + 1} of ${photoList.length}"></button>`).join('')
-      : '';
-    prevBtn.style.display = multi ? 'flex' : 'none';
-    nextBtn.style.display = multi ? 'flex' : 'none';
-
-    let idx = 0;
-    // Only the active photo is rendered at a time (rather than all photos
-    // side-by-side in a sliding track) so the carousel box always sizes
-    // itself to that photo's natural aspect ratio -- no leftover gray
-    // space from a taller/shorter sibling photo.
-    const showSlide = i => {
-      idx = (i + photoList.length) % photoList.length;
-      track.innerHTML = `<div class="carousel-slide"><img src="${photoList[idx]}" alt="${escHtml(r.title)} photo"></div>`;
-      dotsEl.querySelectorAll('.carousel-dot').forEach((dot, di) => dot.classList.toggle('active', di === idx));
-    };
-    prevBtn.onclick = () => showSlide(idx - 1);
-    nextBtn.onclick = () => showSlide(idx + 1);
-    dotsEl.querySelectorAll('.carousel-dot').forEach(dot => {
-      dot.onclick = () => showSlide(parseInt(dot.dataset.i, 10));
-    });
-    showSlide(0);
-  } else {
-    carousel.style.display = 'none';
-    track.innerHTML = '';
-    dotsEl.innerHTML = '';
-  }
+  modalPhotoBase = (r.photos && r.photos.length) ? r.photos.slice() : (r.image ? [r.image] : []);
+  modalCommunityPhotos = [];
+  modalRecipeTitle = r.title;
+  modalCarouselIdx = 0;
+  buildCarousel(false);
 
   const overlay = document.getElementById('modalOverlay');
   overlay.classList.add('open');
@@ -1102,6 +1074,71 @@ function closeModal() {
   history.replaceState(null, '', location.pathname);
   if (window.hideNotesForRecipe) window.hideNotesForRecipe();
 }
+
+// Combines curated photos (modalPhotoBase) with any visitor-submitted
+// photos (modalCommunityPhotos, appended by window.setCommunityPhotos as
+// they load from Firestore) into the modal's hero carousel. Only the
+// active photo is rendered at a time so the box always sizes itself to
+// that photo's own aspect ratio.
+function buildCarousel(preserveIdx) {
+  const carousel = document.getElementById('modalCarousel');
+  const track = document.getElementById('carouselTrack');
+  const dotsEl = document.getElementById('carouselDots');
+  const prevBtn = document.getElementById('carouselPrev');
+  const nextBtn = document.getElementById('carouselNext');
+  const photoList = modalPhotoBase.concat(modalCommunityPhotos);
+
+  if (!photoList.length) {
+    carousel.style.display = 'none';
+    track.innerHTML = '';
+    dotsEl.innerHTML = '';
+    return;
+  }
+
+  carousel.style.display = 'block';
+  const multi = photoList.length > 1;
+  dotsEl.innerHTML = multi
+    ? photoList.map((_, i) => `<button class="carousel-dot" data-i="${i}" aria-label="Photo ${i + 1} of ${photoList.length}"></button>`).join('')
+    : '';
+  prevBtn.style.display = multi ? 'flex' : 'none';
+  nextBtn.style.display = multi ? 'flex' : 'none';
+
+  const showSlide = i => {
+    modalCarouselIdx = (i + photoList.length) % photoList.length;
+    track.innerHTML = `<div class="carousel-slide"><img src="${photoList[modalCarouselIdx]}" alt="${escHtml(modalRecipeTitle)} photo"></div>`;
+    dotsEl.querySelectorAll('.carousel-dot').forEach((dot, di) => dot.classList.toggle('active', di === modalCarouselIdx));
+  };
+  prevBtn.onclick = () => showSlide(modalCarouselIdx - 1);
+  nextBtn.onclick = () => showSlide(modalCarouselIdx + 1);
+  dotsEl.querySelectorAll('.carousel-dot').forEach(dot => {
+    dot.onclick = () => showSlide(parseInt(dot.dataset.i, 10));
+  });
+  showSlide(preserveIdx && modalCarouselIdx < photoList.length ? modalCarouselIdx : 0);
+}
+
+// Bridge for the Firebase notes module script: called whenever the
+// currently-open recipe's visitor-submitted photos load/change, so they
+// join the carousel alongside any curated photos.
+window.setCommunityPhotos = function (uuid, photos) {
+  if (uuid !== currentRecipeUuid) return;
+  modalCommunityPhotos = photos;
+  buildCarousel(true);
+};
+
+// Bridge for the Firebase notes module script: applies a one-time,
+// page-load batch of "earliest visitor photo per recipe" to any recipe
+// that has no curated photo of its own, so it becomes that recipe's
+// featured card-grid background too (matching modal carousel behavior).
+window.applyCommunityFeaturedPhotos = function (photoByUuid) {
+  let changed = false;
+  RECIPES.forEach(r => {
+    if (!r.photo && photoByUuid[r.uuid]) {
+      r.photo = photoByUuid[r.uuid];
+      changed = true;
+    }
+  });
+  if (changed) render();
+};
 
 // ── EVENT LISTENERS
 document.getElementById('closeBtn').addEventListener('click', closeModal);
@@ -1612,7 +1649,7 @@ document.getElementById('scaleCustom').addEventListener('input', e => {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import {
   getFirestore, collection, addDoc, query, where, orderBy,
-  onSnapshot, serverTimestamp, limit,
+  onSnapshot, serverTimestamp, limit, getDocs,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1660,13 +1697,18 @@ function renderNotes(docs) {
     summaryEl.innerHTML = "";
     return;
   }
-  const avg = docs.reduce((a, d) => a + d.rating, 0) / docs.length;
-  summaryEl.innerHTML = `<span>${starsHtml(Math.round(avg))}</span> ${avg.toFixed(1)} (${docs.length} ${docs.length === 1 ? "rating" : "ratings"})`;
+  const rated = docs.filter(d => d.rating);
+  if (rated.length) {
+    const avg = rated.reduce((a, d) => a + d.rating, 0) / rated.length;
+    summaryEl.innerHTML = `<span>${starsHtml(Math.round(avg))}</span> ${avg.toFixed(1)} (${rated.length} ${rated.length === 1 ? "rating" : "ratings"}) · ${docs.length} ${docs.length === 1 ? "note" : "notes"}`;
+  } else {
+    summaryEl.innerHTML = `${docs.length} ${docs.length === 1 ? "note" : "notes"}`;
+  }
   listEl.innerHTML = docs.map(d => `
     <div class="note-card">
       <div class="note-card-head">
         <span>
-          <span class="note-card-stars">${starsHtml(d.rating)}</span>
+          ${d.rating ? `<span class="note-card-stars">${starsHtml(d.rating)}</span>` : ""}
           ${d.name ? `<span class="note-card-name">${escHtml(d.name)}</span>` : ""}
         </span>
         <span class="note-card-time">${d.createdAt ? timeAgo(d.createdAt) : ""}</span>
@@ -1709,6 +1751,14 @@ window.showNotesForRecipe = function (uuid) {
         return { ...data, createdAt: data.createdAt ? data.createdAt.toDate() : null };
       });
       renderNotes(docs);
+
+      // Feed any visitor-submitted photos into this recipe's hero carousel,
+      // oldest first, alongside whatever curated photos it already has.
+      const communityPhotos = docs
+        .filter(d => d.photoData)
+        .sort((a, b) => (a.createdAt ? a.createdAt.getTime() : 0) - (b.createdAt ? b.createdAt.getTime() : 0))
+        .map(d => d.photoData);
+      if (window.setCommunityPhotos) window.setCommunityPhotos(uuid, communityPhotos);
     },
     err => {
       document.getElementById("notesList").innerHTML =
@@ -1809,21 +1859,26 @@ document.getElementById("noteForm").addEventListener("submit", async e => {
   const statusEl = document.getElementById("noteStatus");
   const submitBtn = document.getElementById("noteSubmitBtn");
   if (!currentUuid) return;
-  if (!selectedRating) {
-    statusEl.textContent = "Please pick a star rating.";
+  const name = document.getElementById("noteName").value.trim();
+  const text = document.getElementById("noteText").value.trim();
+
+  if (!selectedRating && !text && !selectedPhotoDataUrl) {
+    statusEl.textContent = "Add a rating, a note, or a photo before posting.";
     statusEl.className = "note-status error";
     return;
   }
-  const name = document.getElementById("noteName").value.trim();
-  const text = document.getElementById("noteText").value.trim();
 
   submitBtn.disabled = true;
   statusEl.textContent = "Posting…";
   statusEl.className = "note-status";
 
-  const noteDoc = { uuid: currentUuid, rating: selectedRating, text, createdAt: serverTimestamp() };
+  const noteDoc = { uuid: currentUuid, text, createdAt: serverTimestamp() };
+  if (selectedRating) noteDoc.rating = selectedRating;
   if (name) noteDoc.name = name;
-  if (selectedPhotoDataUrl) noteDoc.photoData = selectedPhotoDataUrl;
+  if (selectedPhotoDataUrl) {
+    noteDoc.photoData = selectedPhotoDataUrl;
+    noteDoc.hasPhoto = true;
+  }
 
   try {
     await addDoc(notesCol, noteDoc);
@@ -1837,6 +1892,33 @@ document.getElementById("noteForm").addEventListener("submit", async e => {
     setTimeout(() => { submitBtn.disabled = false; }, 3000);
   }
 });
+
+// One-time, page-load pass: find the earliest visitor photo for each
+// recipe uuid (querying only notes flagged hasPhoto -- a cheap indexed
+// equality filter, so this never downloads text-only notes or full note
+// history) and hand them to the main script, which applies one as the
+// card-grid background for any recipe that has no curated photo of its
+// own. Not live -- a visitor photo added after this page load won't show
+// up as a grid background until the next reload.
+(async () => {
+  try {
+    const snap = await getDocs(query(notesCol, where("hasPhoto", "==", true)));
+    const earliestByUuid = {};
+    snap.forEach(d => {
+      const data = d.data();
+      if (!data.uuid || !data.photoData) return;
+      const t = data.createdAt ? data.createdAt.toMillis() : 0;
+      if (!earliestByUuid[data.uuid] || t < earliestByUuid[data.uuid].t) {
+        earliestByUuid[data.uuid] = { t, photoData: data.photoData };
+      }
+    });
+    const photoByUuid = {};
+    for (const uuid in earliestByUuid) photoByUuid[uuid] = earliestByUuid[uuid].photoData;
+    if (window.applyCommunityFeaturedPhotos) window.applyCommunityFeaturedPhotos(photoByUuid);
+  } catch (err) {
+    console.warn("Could not load community featured photos:", err);
+  }
+})();
 </script>
 </body>
 </html>
