@@ -6,20 +6,29 @@
 <title>The Gruenberg Recipe Collection</title>
 <style>
 :root {
-  --bg: #F7F5F0;
+  /* Palette from colorffy.com/dark-theme-generator (primary #3609AE, seed
+     success/warning/danger/info) -- light mode uses a clean near-white
+     base with the primary purple as accent; the generator's own surface
+     scale was built for dark mode, so light-mode surfaces/borders here
+     are computed tints of the primary rather than provided directly. */
+  --bg: #FAF9FD;
   --surface: #FFFFFF;
-  --border: #E4DED5;
-  --accent: #3D6B4F;
-  --accent-light: #EBF2ED;
-  --accent-dark: #2B4F38;
+  --border: #E3DDF4;
+  --accent: #4234B8;       /* cffy primary-a10 */
+  --accent-light: #EFEBF9;
+  --accent-dark: #3609AE;  /* cffy primary-a0 */
   --text: #1C1C1C;
-  --text-sub: #6B6560;
-  --text-muted: #9C9490;
+  --text-sub: #655A69;
+  --text-muted: #928693;
+  --success: #387343;
+  --warning: #73552A;
+  --danger: #733A3A;
+  --info: #3D5E73;
   --cookbook: #7A4F28;
   --cookbook-bg: #FDF4EC;
   --cookbook-border: #E8CEAE;
-  --chip-bg: #EDEBE6;
-  --chip-hover: #E4E0D8;
+  --chip-bg: #F5F3FB;
+  --chip-hover: #EDE9F8;
   --header-bg: rgba(255,255,255,0.95);
   --search-focus-bg: #ffffff;
   --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.05);
@@ -29,22 +38,29 @@
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 html.dark {
-  --bg: #171714;
-  --surface: #222220;
-  --border: #333330;
-  --accent: #5A9B72;
-  --accent-light: #1A2E22;
-  --accent-dark: #7BC49A;
-  --text: #EDEAE4;
-  --text-sub: #9A948E;
-  --text-muted: #665F58;
+  /* Dark-mode surfaces/tonal-surfaces and the success/warning/danger/info
+     shades are the generator's values as-given -- they were built for a
+     dark background, so they're used directly rather than recomputed. */
+  --bg: #121212;           /* cffy surface-a0 */
+  --surface: #252525;      /* cffy surface-a10 */
+  --border: #393939;       /* cffy surface-a20 */
+  --accent: #777CD4;       /* cffy primary-a40 */
+  --accent-light: #141520; /* cffy surface-tonal-a0 */
+  --accent-dark: #8C92DD;  /* cffy primary-a50 */
+  --text: #F8F6FC;
+  --text-sub: #7D7D7D;     /* cffy surface-a50 */
+  --text-muted: #666666;   /* cffy surface-a40 */
+  --success: #7DFF95;
+  --warning: #FFBC5E;
+  --danger: #FF8080;
+  --info: #87D1FF;
   --cookbook: #C98A55;
   --cookbook-bg: #231910;
   --cookbook-border: #4A3520;
-  --chip-bg: #2C2C28;
-  --chip-hover: #383832;
-  --header-bg: rgba(26,26,23,0.95);
-  --search-focus-bg: #2C2C28;
+  --chip-bg: #272833;      /* cffy surface-tonal-a10 */
+  --chip-hover: #3B3C47;   /* cffy surface-tonal-a20 */
+  --header-bg: rgba(18,18,18,0.95);
+  --search-focus-bg: #252525;
   --shadow: 0 1px 4px rgba(0,0,0,0.3), 0 2px 12px rgba(0,0,0,0.2);
   --shadow-hover: 0 4px 16px rgba(0,0,0,0.4);
 }
@@ -619,8 +635,8 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
 }
 .note-submit-btn:disabled { opacity: 0.55; cursor: default; }
 .note-status { font-size: 0.78rem; color: var(--text-muted); min-height: 1em; }
-.note-status.error { color: #C0392B; }
-.note-status.success { color: var(--accent); }
+.note-status.error { color: var(--danger); }
+.note-status.success { color: var(--success); }
 </style>
 </head>
 <body>
