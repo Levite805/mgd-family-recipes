@@ -1090,6 +1090,28 @@ function renderMd(text) {
       continue;
     }
 
+    // Implicit section labels, e.g. "Bulk fermentation (9:15 a.m. to
+    // 11:15 a.m.):" or "For the sauce:" immediately before a set of
+    // numbered steps or bullets. These aren't authored with markdown
+    // header syntax (#) in the source notes, but function exactly like
+    // one -- promote to a real heading (reusing the <h3> style already
+    // used for explicit "### Sub-heading" lines) instead of a plain
+    // paragraph, so they stand out instead of blending into body text.
+    // Scoped tightly (short line, ends in ":", immediately followed by
+    // a list) to avoid mistaking an ordinary sentence for a label.
+    if (/:$/.test(line) && line.length <= 60) {
+      let nextLine = '';
+      for (let j = i + 1; j < lines.length; j++) {
+        const t = lines[j].trim();
+        if (t) { nextLine = t; break; }
+      }
+      if (/^\d+\.\s/.test(nextLine) || /^[*-] /.test(nextLine)) {
+        flush();
+        out.push(`<h3>${inline(line)}</h3>`);
+        continue;
+      }
+    }
+
     flush();
     out.push(`<p>${inline(line)}</p>`);
   }
