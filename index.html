@@ -41,6 +41,9 @@
   --moser: #8B3A62;
   --moser-bg: #FBEEF4;
   --moser-border: #E9C4D9;
+  --dishong: #4B5FA6;
+  --dishong-bg: #EEF1FB;
+  --dishong-border: #C9D2F0;
   --chip-bg: #F3FAFE;
   --chip-hover: #EAF5FD;
   --header-bg: rgba(255,255,255,0.95);
@@ -79,6 +82,9 @@ html.dark {
   --moser: #E8A8C9;
   --moser-bg: #241620;
   --moser-border: #4A2C3D;
+  --dishong: #A8B8F0;
+  --dishong-bg: #181C2B;
+  --dishong-border: #333B54;
   --chip-bg: #293136;      /* cffy surface-tonal-a10 */
   --chip-hover: #3D444A;   /* cffy surface-tonal-a20 */
   --header-bg: rgba(18,18,18,0.95);
@@ -235,13 +241,14 @@ main {
    .cookbook-badge, so the two families are visually distinguishable
    on the card grid at a glance. */
 .card-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-.gruenberg-badge, .moser-badge {
+.gruenberg-badge, .moser-badge, .dishong-badge {
   flex-shrink: 0; font-size: 0.7rem; font-weight: 600;
   padding: 3px 8px; border-radius: 20px; border: 1px solid transparent;
   margin-top: 2px;
 }
 .gruenberg-badge { color: var(--gruenberg); background: var(--gruenberg-bg); border-color: var(--gruenberg-border); }
 .moser-badge { color: var(--moser); background: var(--moser-bg); border-color: var(--moser-border); }
+.dishong-badge { color: var(--dishong); background: var(--dishong-bg); border-color: var(--dishong-border); }
 .card-meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .card-cat {
   display: inline-flex; align-items: center; gap: 4px;
@@ -282,7 +289,8 @@ main {
 .card.has-photo .card-rating .rating-count { color: rgba(255,255,255,0.7); }
 .card.has-photo .card-attribution { color: rgba(255,255,255,0.88); }
 .card.has-photo .gruenberg-badge,
-.card.has-photo .moser-badge {
+.card.has-photo .moser-badge,
+.card.has-photo .dishong-badge {
   background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.4);
 }
 .card.has-photo .card-preview { color: rgba(255,255,255,0.82); }
@@ -348,12 +356,13 @@ main {
   background: var(--cookbook-bg); padding: 3px 10px; border-radius: 12px;
   border: 1px solid var(--cookbook-border);
 }
-.modal-gruenberg, .modal-moser {
+.modal-gruenberg, .modal-moser, .modal-dishong {
   font-size: 0.72rem; font-weight: 500; padding: 3px 10px; border-radius: 12px;
   border: 1px solid transparent;
 }
 .modal-gruenberg { color: var(--gruenberg); background: var(--gruenberg-bg); border-color: var(--gruenberg-border); }
 .modal-moser { color: var(--moser); background: var(--moser-bg); border-color: var(--moser-border); }
+.modal-dishong { color: var(--dishong); background: var(--dishong-bg); border-color: var(--dishong-border); }
 .modal-rating {
   display: inline-flex; align-items: center; gap: 3px;
   font-size: 0.75rem; font-weight: 600; color: var(--text-sub);
@@ -804,6 +813,7 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
         <button class="chip" data-cat="reference">Reference <span class="count" id="count-reference"></span></button>
         <button class="chip" data-cat="gruenberg">Gruenberg Recipes <span class="count" id="count-gruenberg"></span></button>
         <button class="chip" data-cat="moser">Moser Recipes <span class="count" id="count-moser"></span></button>
+        <button class="chip" data-cat="dishong">Dishong Recipes <span class="count" id="count-dishong"></span></button>
       </div>
     </div>
   </div>
@@ -1182,6 +1192,8 @@ function matches(r) {
     if (!(r.tags || []).includes('Gruenberg Recipes')) return false;
   } else if (activeFilter === 'moser') {
     if (!(r.tags || []).includes('Moser Recipes')) return false;
+  } else if (activeFilter === 'dishong') {
+    if (!(r.tags || []).includes('Dishong Recipes')) return false;
   } else if (activeFilter !== 'all') {
     if (r.category !== activeFilter) return false;
   }
@@ -1254,6 +1266,7 @@ function render() {
     const tags = r.tags || [];
     const gruenbergBadge = tags.includes('Gruenberg Recipes') ? '<span class="gruenberg-badge">Gruenberg Recipes</span>' : '';
     const moserBadge = tags.includes('Moser Recipes') ? '<span class="moser-badge">Moser Recipes</span>' : '';
+    const dishongBadge = tags.includes('Dishong Recipes') ? '<span class="dishong-badge">Dishong Recipes</span>' : '';
     const attrHtml = r.attribution ? `<div class="card-attribution">${r.attribution}'s Recipe</div>` : '';
     const previewHtml = r.preview ? `<div class="card-preview">${escHtml(r.preview)}</div>` : '';
     // Only recipes with at least one visitor rating carry avgRating (set
@@ -1271,6 +1284,7 @@ function render() {
           ${cbBadge}
           ${gruenbergBadge}
           ${moserBadge}
+          ${dishongBadge}
         </div>
       </div>
       <div class="card-meta-row">
@@ -1310,6 +1324,8 @@ function updateCounts() {
   document.getElementById('count-gruenberg').textContent = RECIPES.filter(matches).length;
   activeFilter = 'moser'; searchQuery = '';
   document.getElementById('count-moser').textContent = RECIPES.filter(matches).length;
+  activeFilter = 'dishong'; searchQuery = '';
+  document.getElementById('count-dishong').textContent = RECIPES.filter(matches).length;
 
   activeFilter = saved.filter; searchQuery = saved.query;
 }
@@ -1358,6 +1374,12 @@ function renderModalBadges(r) {
     mSpan.className = 'modal-moser';
     mSpan.textContent = 'Moser Recipes';
     badges.appendChild(mSpan);
+  }
+  if (tags.includes('Dishong Recipes')) {
+    const dSpan = document.createElement('span');
+    dSpan.className = 'modal-dishong';
+    dSpan.textContent = 'Dishong Recipes';
+    badges.appendChild(dSpan);
   }
 }
 
