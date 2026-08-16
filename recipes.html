@@ -1521,9 +1521,14 @@ document.getElementById('modalContent').addEventListener('click', e => {
 
 document.querySelectorAll('.chip').forEach(chip => {
   chip.addEventListener('click', () => {
+    // Clicking the already-active filter chip again deselects it and
+    // falls back to "All", rather than leaving it stuck active with no
+    // way to turn it off short of clicking a different chip.
+    const alreadyActive = chip.classList.contains('active');
+    const targetCat = (alreadyActive && chip.dataset.cat !== 'all') ? 'all' : chip.dataset.cat;
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    activeFilter = chip.dataset.cat;
+    document.querySelector(`.chip[data-cat="${targetCat}"]`).classList.add('active');
+    activeFilter = targetCat;
     render();
   });
 });
