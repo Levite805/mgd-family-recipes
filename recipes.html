@@ -530,6 +530,73 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
   font-size: 0.82rem; background: var(--surface); color: var(--text); outline: none;
 }
 .scale-custom-input:focus { border-color: var(--accent); }
+
+/* ── VISITOR NOTES & RATINGS ── */
+.visitor-notes {
+  margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border);
+}
+.visitor-notes-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
+}
+.visitor-notes-title { font-size: 1rem; font-weight: 700; margin: 0; }
+.rating-summary { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-sub); }
+.rating-summary .star-sm, .note-card-stars .star-sm { color: #D9A62E; }
+.notes-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.note-card {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 14px; background: var(--surface);
+}
+.note-card-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px;
+}
+.note-card-stars { font-size: 0.85rem; letter-spacing: 1px; }
+.note-card-name { font-weight: 600; font-size: 0.85rem; margin-left: 8px; }
+.note-card-time { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+.note-card-text { font-size: 0.88rem; color: var(--text); line-height: 1.45; margin: 4px 0 0; white-space: pre-wrap; }
+.note-card-photo {
+  margin-top: 8px; max-width: 220px; max-height: 220px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); display: block; cursor: pointer; object-fit: cover;
+}
+.notes-empty { font-size: 0.85rem; color: var(--text-muted); font-style: italic; }
+.note-form {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; background: var(--accent-light);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.note-form-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.note-form-label { font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
+.star-picker { display: flex; gap: 2px; }
+.star-btn {
+  border: none; background: none; cursor: pointer; padding: 2px;
+  font-size: 1.3rem; line-height: 1; color: var(--border);
+  -webkit-tap-highlight-color: transparent; transition: color 0.1s;
+}
+.star-btn.filled { color: #D9A62E; }
+.note-input, .note-textarea {
+  width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text); padding: 8px 10px;
+  font-size: 0.85rem; font-family: inherit; outline: none; box-sizing: border-box;
+}
+.note-input:focus, .note-textarea:focus { border-color: var(--accent); }
+.note-textarea { resize: vertical; min-height: 60px; }
+.note-photo-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1.5px solid var(--border); border-radius: 16px; background: var(--surface);
+  padding: 5px 12px; font-size: 0.8rem; color: var(--text-sub); cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.note-photo-label:hover { border-color: var(--accent); color: var(--accent); }
+.note-photo-label.has-photo { border-color: var(--accent); color: var(--accent); }
+.note-submit-btn {
+  margin-left: auto; border: none; border-radius: 16px; background: var(--accent);
+  color: #fff; font-size: 0.85rem; font-weight: 600; padding: 7px 18px; cursor: pointer;
+  transition: opacity 0.15s;
+}
+.note-submit-btn:disabled { opacity: 0.55; cursor: default; }
+.note-status { font-size: 0.78rem; color: var(--text-muted); min-height: 1em; }
+.note-status.error { color: #C0392B; }
+.note-status.success { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -637,6 +704,37 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
         <div class="carousel-dots" id="carouselDots"></div>
       </div>
       <div class="recipe-content" id="modalContent"></div>
+
+      <div class="visitor-notes">
+        <div class="visitor-notes-header">
+          <h3 class="visitor-notes-title">Notes &amp; Ratings</h3>
+          <div class="rating-summary" id="ratingSummary"></div>
+        </div>
+        <div class="notes-list" id="notesList"></div>
+        <form class="note-form" id="noteForm">
+          <div class="note-form-row">
+            <span class="note-form-label">Your rating</span>
+            <div class="star-picker" id="starPicker" role="radiogroup" aria-label="Rating">
+              <button type="button" class="star-btn" data-star="1" aria-label="1 star">★</button>
+              <button type="button" class="star-btn" data-star="2" aria-label="2 stars">★</button>
+              <button type="button" class="star-btn" data-star="3" aria-label="3 stars">★</button>
+              <button type="button" class="star-btn" data-star="4" aria-label="4 stars">★</button>
+              <button type="button" class="star-btn" data-star="5" aria-label="5 stars">★</button>
+            </div>
+          </div>
+          <input type="text" class="note-input" id="noteName" placeholder="Your name (optional)" maxlength="60">
+          <textarea class="note-textarea" id="noteText" placeholder="Leave a note about this recipe... (optional)" maxlength="1000"></textarea>
+          <div class="note-form-row">
+            <label class="note-photo-label" for="notePhoto">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 15l-5-5-4 4-3-3-6 6"/></svg>
+              <span id="notePhotoLabel">Add a photo</span>
+            </label>
+            <input type="file" id="notePhoto" accept="image/*" hidden>
+            <button type="submit" class="note-submit-btn" id="noteSubmitBtn">Post</button>
+          </div>
+          <div class="note-status" id="noteStatus"></div>
+        </form>
+      </div>
     </div>
   </div>
 </div>
@@ -993,6 +1091,8 @@ function openModal(r) {
   // Track current recipe for sharing & update URL hash
   currentRecipeUuid = r.uuid;
   history.replaceState(null, '', location.pathname + '#recipe-' + r.uuid);
+
+  if (window.showNotesForRecipe) window.showNotesForRecipe(r.uuid);
 }
 
 function closeModal() {
@@ -1000,6 +1100,7 @@ function closeModal() {
   document.body.style.overflow = '';
   currentRecipeUuid = null;
   history.replaceState(null, '', location.pathname);
+  if (window.hideNotesForRecipe) window.hideNotesForRecipe();
 }
 
 // ── EVENT LISTENERS
@@ -1501,5 +1602,241 @@ document.getElementById('scaleCustom').addEventListener('input', e => {
 });
 </script>
 <div class="toast" id="toast"></div>
+
+<script type="module">
+// ── VISITOR NOTES & RATINGS (Firebase Firestore) ──
+// Photos are stored inline as compressed base64 (no Firebase Storage / no
+// billing account required) -- see photoData handling below. Firestore
+// caps a document at 1MiB, so images are resized/re-compressed client-side
+// until comfortably under that limit.
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, query, where, orderBy,
+  onSnapshot, serverTimestamp, limit,
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCbRbbsyYZLysfr-1jKImKdwE8L-zK1kH8",
+  authDomain: "gruenberg-recipes.firebaseapp.com",
+  projectId: "gruenberg-recipes",
+  storageBucket: "gruenberg-recipes.firebasestorage.app",
+  messagingSenderId: "250018101536",
+  appId: "1:250018101536:web:47f28df30da322e2a2ff45",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const notesCol = collection(db, "recipeNotes");
+
+let unsubscribe = null;
+let currentUuid = null;
+let selectedRating = 0;
+let selectedPhotoDataUrl = null;
+
+function escHtml(s) {
+  return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function starsHtml(n) {
+  let out = "";
+  for (let i = 1; i <= 5; i++) out += `<span class="star-sm">${i <= n ? "★" : "☆"}</span>`;
+  return out;
+}
+
+function timeAgo(date) {
+  const s = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60); if (m < 60) return m + "m ago";
+  const h = Math.floor(m / 60); if (h < 24) return h + "h ago";
+  const d = Math.floor(h / 24); if (d < 30) return d + "d ago";
+  return date.toLocaleDateString();
+}
+
+function renderNotes(docs) {
+  const listEl = document.getElementById("notesList");
+  const summaryEl = document.getElementById("ratingSummary");
+  if (!docs.length) {
+    listEl.innerHTML = '<div class="notes-empty">No notes yet — be the first to leave one!</div>';
+    summaryEl.innerHTML = "";
+    return;
+  }
+  const avg = docs.reduce((a, d) => a + d.rating, 0) / docs.length;
+  summaryEl.innerHTML = `<span>${starsHtml(Math.round(avg))}</span> ${avg.toFixed(1)} (${docs.length} ${docs.length === 1 ? "rating" : "ratings"})`;
+  listEl.innerHTML = docs.map(d => `
+    <div class="note-card">
+      <div class="note-card-head">
+        <span>
+          <span class="note-card-stars">${starsHtml(d.rating)}</span>
+          ${d.name ? `<span class="note-card-name">${escHtml(d.name)}</span>` : ""}
+        </span>
+        <span class="note-card-time">${d.createdAt ? timeAgo(d.createdAt) : ""}</span>
+      </div>
+      ${d.text ? `<p class="note-card-text">${escHtml(d.text)}</p>` : ""}
+      ${d.photoData ? `<img class="note-card-photo" src="${d.photoData}" alt="Visitor photo" onclick="window.open(this.src)">` : ""}
+    </div>
+  `).join("");
+}
+
+function resetNoteForm() {
+  selectedRating = 0;
+  selectedPhotoDataUrl = null;
+  const form = document.getElementById("noteForm");
+  if (form) form.reset();
+  document.querySelectorAll(".star-btn").forEach(b => b.classList.remove("filled"));
+  const label = document.getElementById("notePhotoLabel");
+  if (label) {
+    label.textContent = "Add a photo";
+    label.closest("label").classList.remove("has-photo");
+  }
+  const statusEl = document.getElementById("noteStatus");
+  if (statusEl) { statusEl.textContent = ""; statusEl.className = "note-status"; }
+}
+
+window.showNotesForRecipe = function (uuid) {
+  currentUuid = uuid;
+  resetNoteForm();
+  document.getElementById("notesList").innerHTML = '<div class="notes-empty">Loading notes…</div>';
+  document.getElementById("ratingSummary").innerHTML = "";
+
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+
+  const q = query(notesCol, where("uuid", "==", uuid), orderBy("createdAt", "desc"), limit(100));
+  unsubscribe = onSnapshot(
+    q,
+    snap => {
+      const docs = snap.docs.map(d => {
+        const data = d.data();
+        return { ...data, createdAt: data.createdAt ? data.createdAt.toDate() : null };
+      });
+      renderNotes(docs);
+    },
+    err => {
+      document.getElementById("notesList").innerHTML =
+        `<div class="notes-empty">Couldn't load notes (${escHtml(err.message)}).</div>`;
+    }
+  );
+};
+
+window.hideNotesForRecipe = function () {
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  currentUuid = null;
+};
+
+// Star picker
+document.querySelectorAll(".star-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    selectedRating = parseInt(btn.dataset.star, 10);
+    document.querySelectorAll(".star-btn").forEach(b => {
+      b.classList.toggle("filled", parseInt(b.dataset.star, 10) <= selectedRating);
+    });
+  });
+});
+
+// Photo picker: resize/compress client-side to a small base64 JPEG so the
+// whole note document stays well under Firestore's 1MiB doc limit.
+function resizeImageToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("could not read file"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("could not decode image"));
+      img.onload = () => {
+        let width = img.width, height = img.height;
+        const MAX_DIM = 1000;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          const scale = MAX_DIM / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+
+        const MAX_LEN = 700000; // characters -- comfortably under the 900000 Firestore-rule cap
+        let quality = 0.75;
+        let dataUrl = canvas.toDataURL("image/jpeg", quality);
+        let attempts = 0;
+        while (dataUrl.length > MAX_LEN && attempts < 6) {
+          quality -= 0.1;
+          if (quality < 0.35) {
+            width = Math.round(width * 0.8);
+            height = Math.round(height * 0.8);
+            canvas.width = width; canvas.height = height;
+            canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+            quality = 0.6;
+          }
+          dataUrl = canvas.toDataURL("image/jpeg", Math.max(quality, 0.35));
+          attempts++;
+        }
+        if (dataUrl.length > MAX_LEN) { reject(new Error("image too large to compress")); return; }
+        resolve(dataUrl);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById("notePhoto").addEventListener("change", async e => {
+  const file = e.target.files[0];
+  const label = document.getElementById("notePhotoLabel");
+  const labelEl = label.closest("label");
+  const statusEl = document.getElementById("noteStatus");
+  if (!file) {
+    selectedPhotoDataUrl = null;
+    label.textContent = "Add a photo";
+    labelEl.classList.remove("has-photo");
+    return;
+  }
+  label.textContent = "Compressing…";
+  try {
+    selectedPhotoDataUrl = await resizeImageToDataUrl(file);
+    label.textContent = "Photo attached ✓";
+    labelEl.classList.add("has-photo");
+  } catch (err) {
+    selectedPhotoDataUrl = null;
+    label.textContent = "Add a photo";
+    labelEl.classList.remove("has-photo");
+    statusEl.textContent = "Could not process that image — try a different file.";
+    statusEl.className = "note-status error";
+  }
+});
+
+// Submit
+document.getElementById("noteForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const statusEl = document.getElementById("noteStatus");
+  const submitBtn = document.getElementById("noteSubmitBtn");
+  if (!currentUuid) return;
+  if (!selectedRating) {
+    statusEl.textContent = "Please pick a star rating.";
+    statusEl.className = "note-status error";
+    return;
+  }
+  const name = document.getElementById("noteName").value.trim();
+  const text = document.getElementById("noteText").value.trim();
+
+  submitBtn.disabled = true;
+  statusEl.textContent = "Posting…";
+  statusEl.className = "note-status";
+
+  const noteDoc = { uuid: currentUuid, rating: selectedRating, text, createdAt: serverTimestamp() };
+  if (name) noteDoc.name = name;
+  if (selectedPhotoDataUrl) noteDoc.photoData = selectedPhotoDataUrl;
+
+  try {
+    await addDoc(notesCol, noteDoc);
+    resetNoteForm();
+    statusEl.textContent = "Thanks — your note was posted!";
+    statusEl.className = "note-status success";
+  } catch (err) {
+    statusEl.textContent = "Something went wrong posting your note: " + err.message;
+    statusEl.className = "note-status error";
+  } finally {
+    setTimeout(() => { submitBtn.disabled = false; }, 3000);
+  }
+});
+</script>
 </body>
 </html>
