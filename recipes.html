@@ -58,7 +58,7 @@ html.dark {
   --accent-light: #161E24; /* cffy surface-tonal-a0 */
   --accent-dark: #85C1F5;  /* cffy primary-a40 */
   --text: #F7FBFE;
-  --text-sub: #E4E4E4;     /* user override, 2026-08-16 -- was too dim at #7D7D7D (cffy surface-a50, only 3.7:1 against --surface); this is the more-prominent secondary-text tier, so it should read brighter than --text-muted below, not dimmer */
+  --text-sub: var(--accent); /* user override, 2026-08-16 -- was #E4E4E4 (a near-white gray), then switched to the blue accent color per request (rgb(88,171,240) = #58ABF0, same value as --accent above); referencing var(--accent) rather than the literal hex so this stays in sync automatically if the accent color changes in a future colorffy palette swap. 7.58:1 vs --bg, 6.2:1 vs --surface -- still comfortably legible. */
   --text-muted: #D0D0D0;   /* user override, 2026-08-16 -- was too dim at #666666 (cffy surface-a40) */
   --success: #7DFF95;
   --warning: #FFBC5E;
