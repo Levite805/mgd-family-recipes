@@ -194,6 +194,7 @@ def build_recipe(item: dict, categories: dict, review: list, photos: dict) -> di
         "attribution": attribution,
         "preview": preview,
         "notes": notes,
+        "updatedAt": item.get("updatedAt", ""),
     }
     if item.get("image"):
         recipe["image"] = item["image"]
