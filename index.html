@@ -130,11 +130,30 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   width: 100%; padding: 9px 12px 9px 38px;
   border: 1.5px solid var(--border); border-radius: 24px;
   font-size: 0.9rem; background: var(--bg); color: var(--text);
-  outline: none; transition: border-color 0.2s;
+  outline: none; transition: border-color 0.2s, background 0.2s;
   -webkit-appearance: none;
 }
 #search:focus { border-color: var(--accent); background: var(--search-focus-bg); }
 #search::placeholder { color: var(--text-muted); }
+/* A search in progress gets a persistent accent border/tint (not just
+   on :focus, which disappears the moment you click elsewhere) plus a
+   visible "x" clear button, so it's obvious at a glance that the grid
+   is currently filtered by typed text and not just by the category
+   chips -- previously the only cue was the "X of Y recipes" count. */
+.search-wrap.has-query #search {
+  border-color: var(--accent); background: var(--search-focus-bg);
+  padding-right: 34px;
+}
+.search-clear {
+  display: none; position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 24px; height: 24px; border: none; border-radius: 50%;
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.search-wrap.has-query .search-clear { display: flex; }
+.search-clear:hover { background: var(--chip-hover); color: var(--text); }
+.search-clear svg { width: 11px; height: 11px; }
 
 /* ── FILTER CHIPS ── */
 .filter-bar-wrap {
@@ -764,6 +783,11 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
           <circle cx="9" cy="9" r="6"/><path d="M20 20l-4-4"/>
         </svg>
         <input type="search" id="search" placeholder="Search recipes…" autocomplete="off" spellcheck="false">
+        <button class="search-clear" id="searchClear" aria-label="Clear search" type="button" tabindex="-1">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M1 1l12 12M13 1L1 13"/>
+          </svg>
+        </button>
       </div>
       <div class="header-controls">
         <button class="dark-toggle" id="darkToggle" data-toggle="dark" aria-label="Dark Mode Off" title="Dark Mode Off">
@@ -1533,8 +1557,18 @@ document.querySelectorAll('.chip').forEach(chip => {
   });
 });
 
-document.getElementById('search').addEventListener('input', e => {
+const searchInput = document.getElementById('search');
+const searchWrap = document.querySelector('.search-wrap');
+searchInput.addEventListener('input', e => {
   searchQuery = e.target.value.trim();
+  searchWrap.classList.toggle('has-query', searchQuery.length > 0);
+  render();
+});
+document.getElementById('searchClear').addEventListener('click', () => {
+  searchInput.value = '';
+  searchQuery = '';
+  searchWrap.classList.remove('has-query');
+  searchInput.focus();
   render();
 });
 
