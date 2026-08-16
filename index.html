@@ -585,6 +585,8 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
         <button class="chip" data-cat="desserts">Desserts &amp; Baking <span class="count" id="count-desserts"></span></button>
         <button class="chip" data-cat="cookbook">Family Cookbook <span class="count" id="count-cookbook"></span></button>
         <button class="chip" data-cat="reference">Reference <span class="count" id="count-reference"></span></button>
+        <button class="chip" data-cat="gruenberg">Gruenberg Recipes <span class="count" id="count-gruenberg"></span></button>
+        <button class="chip" data-cat="moser">Moser Recipes <span class="count" id="count-moser"></span></button>
       </div>
     </div>
   </div>
@@ -826,6 +828,10 @@ function buildTable(lines) {
 function matches(r) {
   if (activeFilter === 'cookbook') {
     if (!r.cookbook) return false;
+  } else if (activeFilter === 'gruenberg') {
+    if (!(r.tags || []).includes('David Recipes')) return false;
+  } else if (activeFilter === 'moser') {
+    if (!(r.tags || []).includes('Moser Recipes')) return false;
   } else if (activeFilter !== 'all') {
     if (r.category !== activeFilter) return false;
   }
@@ -902,6 +908,12 @@ function updateCounts() {
   // Cookbook
   activeFilter = 'cookbook'; searchQuery = '';
   document.getElementById('count-cookbook').textContent = RECIPES.filter(matches).length;
+
+  // Family tags
+  activeFilter = 'gruenberg'; searchQuery = '';
+  document.getElementById('count-gruenberg').textContent = RECIPES.filter(matches).length;
+  activeFilter = 'moser'; searchQuery = '';
+  document.getElementById('count-moser').textContent = RECIPES.filter(matches).length;
 
   activeFilter = saved.filter; searchQuery = saved.query;
 }
