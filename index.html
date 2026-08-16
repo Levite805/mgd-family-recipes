@@ -833,6 +833,17 @@ let modalCarouselIdx = 0;
 let modalRecipeTitle = '';
 
 // ── MARKDOWN RENDERER
+// Shared by renderMd() (paragraphs/lists/headers) and buildTable() (table
+// cells) so bold/italic/*link* formatting works the same everywhere a
+// recipe's notes get rendered, not just in the main body text.
+const inline = s => s
+  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
+  // Auto-link bare URLs (most recipe "Source:" lines are plain text,
+  // not markdown link syntax). Trims trailing punctuation/brackets that
+  // are almost always sentence punctuation rather than part of the URL.
+  .replace(/(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]])/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
 function renderMd(text) {
   if (!text) return '';
   const lines = text.split('\n');
@@ -843,14 +854,6 @@ function renderMd(text) {
     if (inUl) { out.push('</ul>'); inUl = false; }
     if (inOl) { out.push('</ol>'); inOl = false; }
   };
-
-  const inline = s => s
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
-    // Auto-link bare URLs (most recipe "Source:" lines are plain text,
-    // not markdown link syntax). Trims trailing punctuation/brackets that
-    // are almost always sentence punctuation rather than part of the URL.
-    .replace(/(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]])/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
 
   // Table parsing
   let tableLines = [];
@@ -918,17 +921,17 @@ function renderMd(text) {
 }
 
 function buildTable(lines) {
-  if (lines.length < 2) return lines.map(l => `<p>${l}</p>`).join('');
+  if (lines.length < 2) return lines.map(l => `<p>${inline(l)}</p>`).join('');
   const parse = l => l.split('|').slice(1, -1).map(c => c.trim());
   const headers = parse(lines[0]);
   // lines[1] is the separator row, skip
   const rows = lines.slice(2).map(parse);
   let html = '<table><thead><tr>';
-  headers.forEach(h => html += `<th>${h}</th>`);
+  headers.forEach(h => html += `<th>${inline(h)}</th>`);
   html += '</tr></thead><tbody>';
   rows.forEach(r => {
     html += '<tr>';
-    r.forEach(c => html += `<td>${c}</td>`);
+    r.forEach(c => html += `<td>${inline(c)}</td>`);
     html += '</tr>';
   });
   html += '</tbody></table>';
