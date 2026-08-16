@@ -6,20 +6,25 @@
 <title>MGD Family Recipes</title>
 <style>
 :root {
-  /* Palette from colorffy.com/dark-theme-generator (primary #3609AE, seed
+  /* Palette from colorffy.com/dark-theme-generator (primary #1395EA, seed
      success/warning/danger/info) -- light mode uses a clean near-white
-     base with the primary purple as accent; the generator's own surface
+     base with the primary blue as accent; the generator's own surface
      scale was built for dark mode, so light-mode surfaces/borders here
-     are computed tints of the primary rather than provided directly. */
-  --bg: #FAF9FD;
+     are computed tints of the primary rather than provided directly.
+     Unlike the previous (purple) palette, primary-a0/a10 are too pale
+     for legible text on a light background (~2.7-3.1:1 contrast), so
+     --accent/--accent-dark are custom-darkened toward black instead of
+     using the generator's tints directly (still same hue, ~5:1/~8:1
+     contrast against the light bg). */
+  --bg: #F9FCFE;
   --surface: #FFFFFF;
-  --border: #E3DDF4;
-  --accent: #4234B8;       /* cffy primary-a10 */
-  --accent-light: #EFEBF9;
-  --accent-dark: #3609AE;  /* cffy primary-a0 */
+  --border: #DEF0FC;
+  --accent: #0E70B0;
+  --accent-light: #ECF7FD;
+  --accent-dark: #0A5281;
   --text: #1C1C1C;
-  --text-sub: #655A69;
-  --text-muted: #928693;
+  --text-sub: #606B71;
+  --text-muted: #8E9499;
   --success: #387343;
   --warning: #73552A;
   --danger: #733A3A;
@@ -27,8 +32,8 @@
   --cookbook: #7A4F28;
   --cookbook-bg: #FDF4EC;
   --cookbook-border: #E8CEAE;
-  --chip-bg: #F5F3FB;
-  --chip-hover: #EDE9F8;
+  --chip-bg: #F3FAFE;
+  --chip-hover: #EAF5FD;
   --header-bg: rgba(255,255,255,0.95);
   --search-focus-bg: #ffffff;
   --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.05);
@@ -40,14 +45,16 @@
 html.dark {
   /* Dark-mode surfaces/tonal-surfaces and the success/warning/danger/info
      shades are the generator's values as-given -- they were built for a
-     dark background, so they're used directly rather than recomputed. */
+     dark background, so they're used directly rather than recomputed.
+     (success/warning/danger/info are unchanged from the previous palette
+     -- this generator run used the same seed values for those.) */
   --bg: #121212;           /* cffy surface-a0 */
   --surface: #252525;      /* cffy surface-a10 */
   --border: #393939;       /* cffy surface-a20 */
-  --accent: #777CD4;       /* cffy primary-a40 */
-  --accent-light: #141520; /* cffy surface-tonal-a0 */
-  --accent-dark: #8C92DD;  /* cffy primary-a50 */
-  --text: #F8F6FC;
+  --accent: #58ABF0;       /* cffy primary-a20 */
+  --accent-light: #161E24; /* cffy surface-tonal-a0 */
+  --accent-dark: #85C1F5;  /* cffy primary-a40 */
+  --text: #F7FBFE;
   --text-sub: #7D7D7D;     /* cffy surface-a50 */
   --text-muted: #666666;   /* cffy surface-a40 */
   --success: #7DFF95;
@@ -57,8 +64,8 @@ html.dark {
   --cookbook: #C98A55;
   --cookbook-bg: #231910;
   --cookbook-border: #4A3520;
-  --chip-bg: #272833;      /* cffy surface-tonal-a10 */
-  --chip-hover: #3B3C47;   /* cffy surface-tonal-a20 */
+  --chip-bg: #293136;      /* cffy surface-tonal-a10 */
+  --chip-hover: #3D444A;   /* cffy surface-tonal-a20 */
   --header-bg: rgba(18,18,18,0.95);
   --search-focus-bg: #252525;
   --shadow: 0 1px 4px rgba(0,0,0,0.3), 0 2px 12px rgba(0,0,0,0.2);
