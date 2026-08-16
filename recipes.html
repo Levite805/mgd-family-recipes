@@ -970,8 +970,12 @@ function renderMd(text) {
       continue;
     }
 
-    // Unordered list
-    if (/^\* /.test(line)) {
+    // Unordered list (accepts both "* " and "- " bullet markers -- the
+    // Moser Recipes import uses "- ", the original recipes use "* ";
+    // without matching both, "- " lines fell through to the plain <p>
+    // case and rendered in the muted paragraph color instead of the
+    // normal list-item color).
+    if (/^[*-] /.test(line)) {
       if (inOl) { out.push('</ol>'); inOl = false; }
       if (!inUl) { out.push('<ul>'); inUl = true; }
       out.push(`<li>${inline(line.slice(2))}</li>`);
