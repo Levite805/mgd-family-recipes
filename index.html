@@ -217,12 +217,19 @@ main {
   padding: 3px 8px; border-radius: 20px; border: 1px solid var(--cookbook-border);
   margin-top: 2px;
 }
+.card-meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .card-cat {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 0.73rem; font-weight: 500; color: var(--accent);
   background: var(--accent-light); padding: 3px 9px; border-radius: 12px;
   width: fit-content;
 }
+.card-rating {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.78rem; font-weight: 600; color: var(--text-sub);
+}
+.card-rating .star-ico { color: #D9A62E; font-size: 0.85rem; line-height: 1; }
+.card-rating .rating-count { font-weight: 400; color: var(--text-muted); }
 .card-attribution {
   font-size: 0.78rem; color: var(--cookbook); font-style: italic;
 }
@@ -246,6 +253,8 @@ main {
   background: rgba(255,255,255,0.22); color: #fff;
   -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
 }
+.card.has-photo .card-rating { color: rgba(255,255,255,0.9); }
+.card.has-photo .card-rating .rating-count { color: rgba(255,255,255,0.7); }
 .card.has-photo .card-attribution { color: rgba(255,255,255,0.88); }
 .card.has-photo .card-preview { color: rgba(255,255,255,0.82); }
 .card.has-photo .cookbook-badge {
@@ -310,6 +319,13 @@ main {
   background: var(--cookbook-bg); padding: 3px 10px; border-radius: 12px;
   border: 1px solid var(--cookbook-border);
 }
+.modal-rating {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.75rem; font-weight: 600; color: var(--text-sub);
+  background: var(--chip-bg); padding: 3px 10px; border-radius: 12px;
+}
+.modal-rating .star-ico { color: #D9A62E; font-size: 0.85rem; line-height: 1; }
+.modal-rating .rating-count { font-weight: 400; color: var(--text-muted); }
 .close-btn {
   flex-shrink: 0; width: 36px; height: 36px;
   border: none; background: var(--chip-bg); border-radius: 50%;
@@ -1144,13 +1160,23 @@ function render() {
     const cbBadge = r.cookbook ? '<span class="cookbook-badge">Family Cookbook</span>' : '';
     const attrHtml = r.attribution ? `<div class="card-attribution">${r.attribution}'s Recipe</div>` : '';
     const previewHtml = r.preview ? `<div class="card-preview">${escHtml(r.preview)}</div>` : '';
+    // Only recipes with at least one visitor rating carry avgRating (set
+    // by window.applyCommunityData once Firestore data loads) -- shows
+    // the rounded-to-one-decimal average plus how many ratings it's
+    // based on, e.g. "★ 4.3 (12)".
+    const ratingHtml = typeof r.avgRating === 'number'
+      ? `<div class="card-rating"><span class="star-ico">★</span>${r.avgRating.toFixed(1)}<span class="rating-count">(${r.ratingCount})</span></div>`
+      : '';
 
     card.innerHTML = `
       <div class="card-header">
         <div class="card-title">${escHtml(r.title)}</div>
         ${cbBadge}
       </div>
-      <div class="card-cat">${escHtml(catLabel)}</div>
+      <div class="card-meta-row">
+        <div class="card-cat">${escHtml(catLabel)}</div>
+        ${ratingHtml}
+      </div>
       ${attrHtml}
       ${previewHtml}
     `;
@@ -1189,15 +1215,24 @@ function updateCounts() {
 }
 
 // ── MODAL
-function openModal(r) {
-  document.getElementById('modalTitle').textContent = r.title;
-
+// Shared between openModal() and window.applyCommunityData() -- ratings
+// often arrive from Firestore just after a modal is already open (the
+// avgRating isn't known synchronously at openModal time), so this needs
+// to be callable again later to refresh just the rating badge in place.
+function renderModalBadges(r) {
   const badges = document.getElementById('modalBadges');
   badges.innerHTML = '';
   const catSpan = document.createElement('span');
   catSpan.className = 'modal-cat';
   catSpan.textContent = CAT_LABELS[r.category] || '';
   badges.appendChild(catSpan);
+
+  if (typeof r.avgRating === 'number') {
+    const ratingSpan = document.createElement('span');
+    ratingSpan.className = 'modal-rating';
+    ratingSpan.innerHTML = `<span class="star-ico">★</span>${r.avgRating.toFixed(1)}<span class="rating-count">(${r.ratingCount})</span>`;
+    badges.appendChild(ratingSpan);
+  }
 
   if (r.attribution) {
     const attrSpan = document.createElement('span');
@@ -1211,6 +1246,12 @@ function openModal(r) {
     srcSpan.textContent = '📖 Family Cookbook';
     badges.appendChild(srcSpan);
   }
+}
+
+function openModal(r) {
+  document.getElementById('modalTitle').textContent = r.title;
+
+  renderModalBadges(r);
 
   document.getElementById('modalContent').innerHTML = renderMd(r.notes);
   setupScaleBar();
@@ -1312,6 +1353,11 @@ window.applyCommunityData = function (photoByUuid, ratingByUuid) {
       r.avgRating = rating.avg;
       r.ratingCount = rating.count;
       changed = true;
+      // If this recipe's modal happens to already be open (rating data
+      // can arrive from Firestore just after openModal() ran, before
+      // avgRating existed yet), refresh its badge row in place too --
+      // otherwise the modal would show no rating until closed/reopened.
+      if (r.uuid === currentRecipeUuid) renderModalBadges(r);
     }
   });
   if (changed) render();
