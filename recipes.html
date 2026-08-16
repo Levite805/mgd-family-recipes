@@ -1761,8 +1761,13 @@ window.showNotesForRecipe = function (uuid) {
       if (window.setCommunityPhotos) window.setCommunityPhotos(uuid, communityPhotos);
     },
     err => {
+      // Log the real error for debugging, but never show raw Firestore/
+      // technical error text to visitors -- fall back to the same empty
+      // state a recipe with zero notes would show.
+      console.error("recipeNotes query failed:", err);
       document.getElementById("notesList").innerHTML =
-        `<div class="notes-empty">Couldn't load notes (${escHtml(err.message)}).</div>`;
+        '<div class="notes-empty">No notes yet — be the first to leave one!</div>';
+      document.getElementById("ratingSummary").innerHTML = "";
     }
   );
 };
