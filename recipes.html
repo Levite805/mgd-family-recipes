@@ -35,6 +35,12 @@
   --cookbook: #7A4F28;
   --cookbook-bg: #FDF4EC;
   --cookbook-border: #E8CEAE;
+  --gruenberg: #2E7D5B;
+  --gruenberg-bg: #EAF7F1;
+  --gruenberg-border: #BEE3D3;
+  --moser: #8B3A62;
+  --moser-bg: #FBEEF4;
+  --moser-border: #E9C4D9;
   --chip-bg: #F3FAFE;
   --chip-hover: #EAF5FD;
   --header-bg: rgba(255,255,255,0.95);
@@ -67,6 +73,12 @@ html.dark {
   --cookbook: #C98A55;
   --cookbook-bg: #231910;
   --cookbook-border: #4A3520;
+  --gruenberg: #6FD9A8;
+  --gruenberg-bg: #16241D;
+  --gruenberg-border: #2C4A3A;
+  --moser: #E8A8C9;
+  --moser-bg: #241620;
+  --moser-border: #4A2C3D;
   --chip-bg: #293136;      /* cffy surface-tonal-a10 */
   --chip-hover: #3D444A;   /* cffy surface-tonal-a20 */
   --header-bg: rgba(18,18,18,0.95);
@@ -217,6 +229,19 @@ main {
   padding: 3px 8px; border-radius: 20px; border: 1px solid var(--cookbook-border);
   margin-top: 2px;
 }
+/* Family-attribution badges (1Password tags "Gruenberg Recipes" /
+   "Moser Recipes" -- unrelated to `category`, see the "gruenberg"/
+   "moser" filter chips). Each gets its own hue, same pill shape as
+   .cookbook-badge, so the two families are visually distinguishable
+   on the card grid at a glance. */
+.card-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.gruenberg-badge, .moser-badge {
+  flex-shrink: 0; font-size: 0.7rem; font-weight: 600;
+  padding: 3px 8px; border-radius: 20px; border: 1px solid transparent;
+  margin-top: 2px;
+}
+.gruenberg-badge { color: var(--gruenberg); background: var(--gruenberg-bg); border-color: var(--gruenberg-border); }
+.moser-badge { color: var(--moser); background: var(--moser-bg); border-color: var(--moser-border); }
 .card-meta-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .card-cat {
   display: inline-flex; align-items: center; gap: 4px;
@@ -256,6 +281,10 @@ main {
 .card.has-photo .card-rating { color: rgba(255,255,255,0.9); }
 .card.has-photo .card-rating .rating-count { color: rgba(255,255,255,0.7); }
 .card.has-photo .card-attribution { color: rgba(255,255,255,0.88); }
+.card.has-photo .gruenberg-badge,
+.card.has-photo .moser-badge {
+  background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.4);
+}
 .card.has-photo .card-preview { color: rgba(255,255,255,0.82); }
 .card.has-photo .cookbook-badge {
   background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.4);
@@ -319,6 +348,12 @@ main {
   background: var(--cookbook-bg); padding: 3px 10px; border-radius: 12px;
   border: 1px solid var(--cookbook-border);
 }
+.modal-gruenberg, .modal-moser {
+  font-size: 0.72rem; font-weight: 500; padding: 3px 10px; border-radius: 12px;
+  border: 1px solid transparent;
+}
+.modal-gruenberg { color: var(--gruenberg); background: var(--gruenberg-bg); border-color: var(--gruenberg-border); }
+.modal-moser { color: var(--moser); background: var(--moser-bg); border-color: var(--moser-border); }
 .modal-rating {
   display: inline-flex; align-items: center; gap: 3px;
   font-size: 0.75rem; font-weight: 600; color: var(--text-sub);
@@ -1213,6 +1248,12 @@ function render() {
 
     const catLabel = CAT_LABELS[r.category] || '';
     const cbBadge = r.cookbook ? '<span class="cookbook-badge">Family Cookbook</span>' : '';
+    // Family-attribution badges, driven by the same 1Password tags the
+    // "Gruenberg Recipes" / "Moser Recipes" filter chips already use
+    // (see matches() above) -- each family gets its own badge color.
+    const tags = r.tags || [];
+    const gruenbergBadge = tags.includes('Gruenberg Recipes') ? '<span class="gruenberg-badge">Gruenberg Recipes</span>' : '';
+    const moserBadge = tags.includes('Moser Recipes') ? '<span class="moser-badge">Moser Recipes</span>' : '';
     const attrHtml = r.attribution ? `<div class="card-attribution">${r.attribution}'s Recipe</div>` : '';
     const previewHtml = r.preview ? `<div class="card-preview">${escHtml(r.preview)}</div>` : '';
     // Only recipes with at least one visitor rating carry avgRating (set
@@ -1226,7 +1267,11 @@ function render() {
     card.innerHTML = `
       <div class="card-header">
         <div class="card-title">${escHtml(r.title)}</div>
-        ${cbBadge}
+        <div class="card-badges">
+          ${cbBadge}
+          ${gruenbergBadge}
+          ${moserBadge}
+        </div>
       </div>
       <div class="card-meta-row">
         <div class="card-cat">${escHtml(catLabel)}</div>
@@ -1300,6 +1345,19 @@ function renderModalBadges(r) {
     srcSpan.className = 'modal-source';
     srcSpan.textContent = '📖 Family Cookbook';
     badges.appendChild(srcSpan);
+  }
+  const tags = r.tags || [];
+  if (tags.includes('Gruenberg Recipes')) {
+    const gSpan = document.createElement('span');
+    gSpan.className = 'modal-gruenberg';
+    gSpan.textContent = 'Gruenberg Recipes';
+    badges.appendChild(gSpan);
+  }
+  if (tags.includes('Moser Recipes')) {
+    const mSpan = document.createElement('span');
+    mSpan.className = 'modal-moser';
+    mSpan.textContent = 'Moser Recipes';
+    badges.appendChild(mSpan);
   }
 }
 
