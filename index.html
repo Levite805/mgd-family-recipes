@@ -130,22 +130,11 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   width: 100%; padding: 9px 12px 9px 38px;
   border: 1.5px solid var(--border); border-radius: 24px;
   font-size: 0.9rem; background: var(--bg); color: var(--text);
-  outline: none; transition: border-color 0.2s, background 0.2s;
+  outline: none; transition: border-color 0.2s;
   -webkit-appearance: none;
 }
 #search:focus { border-color: var(--accent); background: var(--search-focus-bg); }
 #search::placeholder { color: var(--text-muted); }
-/* A search in progress gets a persistent accent border/tint (not just
-   on :focus, which disappears the moment you click elsewhere), so it's
-   obvious at a glance that the grid is currently filtered by typed
-   text and not just by the category chips -- previously the only cue
-   was the "X of Y recipes" count. Relies on the browser's own native
-   clear ("x") button for type="search" inputs rather than a custom one
-   layered on top -- that led to two overlapping x icons once there was
-   text in the box. */
-.search-wrap.has-query #search {
-  border-color: var(--accent); background: var(--search-focus-bg);
-}
 
 /* ── FILTER CHIPS ── */
 .filter-bar-wrap {
@@ -1544,15 +1533,8 @@ document.querySelectorAll('.chip').forEach(chip => {
   });
 });
 
-const searchInput = document.getElementById('search');
-const searchWrap = document.querySelector('.search-wrap');
-searchInput.addEventListener('input', e => {
+document.getElementById('search').addEventListener('input', e => {
   searchQuery = e.target.value.trim();
-  // Also fires when the browser's own native clear ("x") button on a
-  // type="search" input is clicked, which sets the value to '' and
-  // dispatches an input event -- so no separate handler is needed for
-  // that case.
-  searchWrap.classList.toggle('has-query', searchQuery.length > 0);
   render();
 });
 
