@@ -59,8 +59,9 @@ REVIEW_FILE = REPO / "NEW_RECIPES_REVIEW.md"
 HTML_FILES = [REPO / "recipes.html", REPO / "index.html"]
 
 VALID_CATEGORIES = [
-    "sourdough", "smoked", "breads", "asian", "mains",
-    "sides", "sauces", "desserts", "reference",
+    "sourdough", "smoked", "breads", "asian", "soups", "pasta", "tacos",
+    "breakfast", "mains", "sides", "salads", "appetizers", "sauces",
+    "rubs", "desserts", "reference",
 ]
 
 # Ordered keyword fallback -- only used for BRAND NEW recipes that have no

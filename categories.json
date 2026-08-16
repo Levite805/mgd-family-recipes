@@ -1,6 +1,6 @@
 {
   "227hvqqzlar56edgmaf667ofpy": {
-    "category": "desserts",
+    "category": "breakfast",
     "title": "Lemon-Blueberry Yogurt Toast"
   },
   "22seuuojfmjekotl6nevhebrb4": {
@@ -28,7 +28,7 @@
     "title": "Southern Collard Greens"
   },
   "2gw5wg2qaxpgincnjoi6jx5qpi": {
-    "category": "mains",
+    "category": "breakfast",
     "title": "Fried Eggs in an Air Fryer"
   },
   "2nivxzxcwfr6kvapisix66vtsa": {
@@ -40,7 +40,7 @@
     "title": "Homemade Cheese Sauce (Shake Shack Copycat)"
   },
   "2s7koxijm5dvu275sfcwrvqc4i": {
-    "category": "sides",
+    "category": "asian",
     "title": "Asian Asparagus"
   },
   "2syhsz57yzxpjtkbtu4k3ha7hy": {
@@ -64,7 +64,7 @@
     "title": "Filipino Chicken Adobo (Reddit Version 1)"
   },
   "3fs26t2mjhem2yin5x4b6oi3ja": {
-    "category": "sauces",
+    "category": "appetizers",
     "title": "Hot Sausage Beer Cheese Dip"
   },
   "3hscq72ky6uhwskzm4h47fmxz4": {
@@ -72,11 +72,11 @@
     "title": "Pomegranate Glazed Lamb Lollipops with Feta Tzatziki"
   },
   "3jgcr5nrgbi3o4e5kq3vwl7stu": {
-    "category": "sauces",
+    "category": "appetizers",
     "title": "Best White Queso (Mexican White Cheese Dip)"
   },
   "3ojh5aei2xtu3kqn6y7ukoxpcq": {
-    "category": "mains",
+    "category": "soups",
     "title": "Leftover Turkey Noodle Soup"
   },
   "3xah4pw4igpwxvs53dgte55pvm": {
@@ -96,15 +96,15 @@
     "title": "The Ultimate Chicken Fried Steak with Gravy"
   },
   "46rnikbd6bhusx6j3qlnufigfe": {
-    "category": "mains",
+    "category": "breakfast",
     "title": "Gordon Ramsay Scrambled Eggs"
   },
   "4kgrsgzlheqpxvdmwbgr2z4cyi": {
-    "category": "sauces",
+    "category": "salads",
     "title": "Various Vinaigrette Recipes"
   },
   "4lxo4j4mdonug5g5ret7bjrqg4": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Ground Beef Taco Seasoning"
   },
   "4odb4cc4jsvbkkjvz5vnyrgknq": {
@@ -128,7 +128,7 @@
     "title": "Sweet and Spicy Suka Sawasawan"
   },
   "54qk7um7nfi4kayvbbtyflgllq": {
-    "category": "mains",
+    "category": "breakfast",
     "title": "Quiche Lorraine"
   },
   "5aondqsbopzpukwkbw6hdmtgq4": {
@@ -232,11 +232,11 @@
     "title": "Pina Colada"
   },
   "7hm6qxemnjtlpged6mn7gwb5qu": {
-    "category": "mains",
+    "category": "tacos",
     "title": "Greek Lamb Tacos with Cucumber Pico de Gallo"
   },
   "7ibaqdol6ywygmbxqzcwi3twuq": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Brisket Rub Recipe"
   },
   "7igyklqihtbzo6c33cmdl5wcty": {
@@ -248,7 +248,7 @@
     "title": "A Simple Sourdough Focaccia"
   },
   "7rmzvaau2sfr2b5qucahqr7dqy": {
-    "category": "sides",
+    "category": "tacos",
     "title": "Refried Beans"
   },
   "7tftpjtkrnflqmufd73nmpvvqq": {
@@ -256,7 +256,7 @@
     "title": "Best Sausage Gravy"
   },
   "7vqxl5gbkt5aj5fefxbd3skdoi": {
-    "category": "mains",
+    "category": "tacos",
     "title": "Carne Asada Tacos"
   },
   "7yxfvakpoa3krttteyrquriqqy": {
@@ -264,7 +264,7 @@
     "title": "Slow-Cooker Collard Greens And Ham Hocks"
   },
   "a2mujnqkx55fqoflmke56uyuba": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Grandma's Sweet Pickles"
   },
   "a46x5xhwl3hchjidmq3w6gm5yy": {
@@ -272,7 +272,7 @@
     "title": "Sourdough Oatmeal Cookies"
   },
   "a5i2p3xos6ekxnz4ugfsrbvfai": {
-    "category": "sides",
+    "category": "salads",
     "title": "Fresh Mint, Fennel & Apple Coleslaw"
   },
   "aj6v32dr5fiwhe53kejstykgqm": {
@@ -280,7 +280,7 @@
     "title": "Hot and Fast Ribs"
   },
   "at2u6qgny456fyfantki4qg4uy": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Roasted Pork with Fennel Spice Rub"
   },
   "atyuzwuy5jgq53z2p46x7lwsce": {
@@ -300,11 +300,11 @@
     "title": "Beef Bourguignon (Beef Burgundy)"
   },
   "bcybvubx3wwxgj7ieoxznkqhrm": {
-    "category": "mains",
+    "category": "breakfast",
     "title": "How to Make a Week of Steel-Cut Oats in 5 Jars"
   },
   "bhawnjrkgjdgheimh7q2fqkv7q": {
-    "category": "sides",
+    "category": "salads",
     "title": "Red Cabbage Coleslaw (No Mayo)"
   },
   "bhxnjlmjyw2yyxvsaxl2xxblry": {
@@ -344,7 +344,7 @@
     "title": "Classic Tuna Melt"
   },
   "bwuwelfj7fgn2sk5hbf43uln6m": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Sweet Pepper Pickle/Relish Base"
   },
   "c5hi23uj6dxs5ztktmjwqamvoa": {
@@ -360,7 +360,7 @@
     "title": "Amazing Salt and Pepper Chicken Wings"
   },
   "cfoc554puvnomsaaz64sytpscy": {
-    "category": "sauces",
+    "category": "salads",
     "title": "Vinaigrette Dressing"
   },
   "cg2fehlehlbvdjvwfxglkd6unm": {
@@ -384,7 +384,7 @@
     "title": "Brick Oven-Style Chicken"
   },
   "ctjts3hrbd65tyzree2474yktm": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Spaghetti alla Carbonara"
   },
   "cv4hqhsrab7yqvwr72fke6bncy": {
@@ -400,19 +400,19 @@
     "title": "Classic Italian Meatballs (Tender and Juicy)"
   },
   "d5ab337agdxoywhrfagnye627m": {
-    "category": "mains",
+    "category": "tacos",
     "title": "Tamale Masa (The Spruce Eats)"
   },
   "dbhu5gewgfsgtcx3drw455via4": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Pulled Pork Rub"
   },
   "de5q6an4bdz5mpqni52bdrbviy": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Fresh Herb Risotto"
   },
   "dfhg7yf2no6mwrq26gt5hk6jey": {
-    "category": "mains",
+    "category": "soups",
     "title": "Ginger Carrot Soup"
   },
   "dqpslxabcux4b2rhsblxh3kxke": {
@@ -420,15 +420,15 @@
     "title": "Homemade Turkey Stock"
   },
   "duxhzahc4hnais3j6o5kwj5lma": {
-    "category": "sauces",
+    "category": "appetizers",
     "title": "Lobster Artichoke Dip"
   },
   "dvt4wcgoevb7oma53wj4ykz2sy": {
-    "category": "mains",
+    "category": "tacos",
     "title": "Elevated Ground Beef Tacos (Gourmet Filling)"
   },
   "e2uvfptp3u3mumkqauig7ke5iu": {
-    "category": "mains",
+    "category": "soups",
     "title": "Turkey Chili"
   },
   "e4vxibdzaokmp3hfueooj4sejy": {
@@ -436,7 +436,7 @@
     "title": "The Best Italian-American Meatballs"
   },
   "e5pozydqza6nkwrwmpb3opxsgm": {
-    "category": "mains",
+    "category": "soups",
     "title": "Turkey Dumpling Soup"
   },
   "e6mbzwneg6xobzekrmajih2qi4": {
@@ -452,11 +452,11 @@
     "title": "Sourdough Discard Boule / Dough"
   },
   "ee27z557s46knqv6mq23l6e34e": {
-    "category": "mains",
+    "category": "soups",
     "title": "Hearty Butternut Squash Soup"
   },
   "ekabi2s6vgiq3fxc3cuzbiixua": {
-    "category": "mains",
+    "category": "soups",
     "title": "French Onion Soup"
   },
   "elealiso7acxwcjpoyybgzqv5m": {
@@ -484,7 +484,7 @@
     "title": "Neapolitan Pizza Dough (12h Poolish Version)"
   },
   "evzkogxwrlhmmgqcydd3jzwxgi": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Homemade Pickling Spice"
   },
   "f7evif7ozwsx73hoykacotzbp4": {
@@ -504,7 +504,7 @@
     "title": "Vietnamese Egg Rolls"
   },
   "filbrnxrmi27tr3yswqsar5wta": {
-    "category": "mains",
+    "category": "soups",
     "title": "Andersen's Split Pea Soup"
   },
   "fndzvkbzpsrbk6s55kig5zjyny": {
@@ -552,7 +552,7 @@
     "title": "Crispy Sweet Chilli Chicken"
   },
   "guruau46t52gbei6ykvlsf62ie": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Pasta alla Genovese"
   },
   "gwzzwl2e42axwduo6yizjzngr4": {
@@ -560,11 +560,11 @@
     "title": "The Best, Easiest Focaccia Bread Recipe"
   },
   "gxxqhwonaqboem7m34xla7qwqe": {
-    "category": "sides",
+    "category": "salads",
     "title": "Best Macaroni Salad"
   },
   "h3yga42eo53nxp2wajb5zophwy": {
-    "category": "mains",
+    "category": "soups",
     "title": "Leftover Turkey Soup"
   },
   "h5redkvqzrmsil2g7xw52uyuou": {
@@ -592,7 +592,7 @@
     "title": "Chicken Pho"
   },
   "icqjycwnqkjukinh7wndpwutje": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Dry Wing Rub Basic"
   },
   "ifbbimvkiqtvz2pqmuqvod7ojy": {
@@ -612,7 +612,7 @@
     "title": "Best Turkey Gravy Without Drippings"
   },
   "io3f7rqq5kyikjx2t3w5ogwyae": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Creamy Garlic Butter Chicken and Rigatoni in Parmesan Sauce"
   },
   "iuustxn6ggopjspdob4w7owzxa": {
@@ -660,15 +660,15 @@
     "title": "Toasted Coconut Cheesecake"
   },
   "klnmm56v3qlhv6u732qvugbtie": {
-    "category": "sides",
+    "category": "salads",
     "title": "Most Amazing (Addicting) Macaroni Salad"
   },
   "klpceqrmy6hbaop3xscuvm2424": {
-    "category": "mains",
+    "category": "breakfast",
     "title": "Chorizo Breakfast Burritos"
   },
   "kq3cv22tru7khrsomeei7z4eli": {
-    "category": "sides",
+    "category": "breakfast",
     "title": "Spring Vegetable Frittata with Leeks & Potatoes"
   },
   "kq5llmh5uu2vkcvpub6j77nqdi": {
@@ -676,7 +676,7 @@
     "title": "Smoked Salmon"
   },
   "kr7nvhq6bwuce4xvubm3ge7aqe": {
-    "category": "mains",
+    "category": "breakfast",
     "title": "Spinach Quiche"
   },
   "kskc5acsbizilmov2vnw7b5t3m": {
@@ -684,7 +684,7 @@
     "title": "Sourdough Zucchini Bread"
   },
   "kuz2dc6suygd5vm7wjqctahham": {
-    "category": "sides",
+    "category": "salads",
     "title": "Celery, Fennel and Apple Salad with Pecorino and Walnuts"
   },
   "l2amnhta53oyeh5k6ls2xxdvfe": {
@@ -728,7 +728,7 @@
     "title": "Braised Rosemary Lamb Shoulder Chops"
   },
   "lvmgpzdoaahpyiaor6j6rjuvwm": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Black Powder Rub"
   },
   "lyiujeexujb2lhwkhswc4tlyoi": {
@@ -740,7 +740,7 @@
     "title": "Homemade Blueberry Sauce"
   },
   "makokcmgbzsknx6shez4ehu54q": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Homemade Italian Seasoning"
   },
   "mgfodads7akahsxz2kbcf5x2t4": {
@@ -764,7 +764,7 @@
     "title": "Copycat Alley Restaurant Oxtail Soup"
   },
   "mtg42j3kyfalhb77vagbkjcsae": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Pickled Red Cabbage"
   },
   "mz3ohdlls6ultm7eyv2afk2ulu": {
@@ -816,7 +816,7 @@
     "title": "Pesto Options/Guide"
   },
   "o5tenajhfmkmnnv5mvrblfhy4m": {
-    "category": "mains",
+    "category": "tacos",
     "title": "Beef Tacos (Crispy Folded)"
   },
   "oepg2eo2znwq75yux3xvembtca": {
@@ -824,7 +824,7 @@
     "title": "Blackstone Oklahoma Onion Smash Burgers"
   },
   "og2rfu3oceitzkqe7qey3asgyu": {
-    "category": "sides",
+    "category": "salads",
     "title": "No Mayo Cabbage Slaw"
   },
   "ogmk4neg7dnil4uwxm4m7hetze": {
@@ -832,15 +832,15 @@
     "title": "Sausage and Sage Stuffing"
   },
   "p2qsus43vchko7meina3vcpw5e": {
-    "category": "mains",
+    "category": "soups",
     "title": "Easy Goulash Recipe"
   },
   "p5qdjafebi2wvqmdrzbjwfpszi": {
-    "category": "sides",
+    "category": "pasta",
     "title": "Best Cheese For Macaroni And Cheese"
   },
   "pcupbz6jh2leoz5lzajo4jrk34": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Butternut Squash Risotto"
   },
   "pcysgazuo7kberp746vnxcgtwu": {
@@ -848,7 +848,7 @@
     "title": "Pan-Seared Sesame Crusted Ahi with Soy Ginger Lime Sauce"
   },
   "pgv6gcgrvz3cknw65uvpznhuwa": {
-    "category": "mains",
+    "category": "tacos",
     "title": "Chicken Chile Verde"
   },
   "pholg57qtpziwinkap7rky2z6u": {
@@ -860,7 +860,7 @@
     "title": "Falafel (Traditional Chickpea)"
   },
   "pl2i5452m6cbvcxmusv2kqaxtq": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Moser Sweet Pickle "
   },
   "psd7bonwzxg4sgnny3m5abgaoy": {
@@ -868,7 +868,7 @@
     "title": "Apple Tarte Tatin"
   },
   "puqc6ya764r55ix2ptyigzrx7m": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Bruschetta Chicken Pasta"
   },
   "qanqwrvj6pb7ebyjtrijwn4zue": {
@@ -888,11 +888,11 @@
     "title": "Potato Stacks (Potato Pavé)"
   },
   "qltgpklrg4byt5ezryqysviham": {
-    "category": "sides",
+    "category": "salads",
     "title": "Fruit Salad Dressing"
   },
   "qmgme6isslkyx3n2wpdqipfepe": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Homemade Pickling Spice"
   },
   "qot7p2frotfa36ewjqe27uda2q": {
@@ -912,7 +912,7 @@
     "title": "Smoked Pork Loin (Traeger)"
   },
   "quxesp22b3gl3b57uk4sz3xmam": {
-    "category": "sides",
+    "category": "pasta",
     "title": "Creamy Baked Mac and Cheese"
   },
   "qyppkx65pra7lxiur7smnwds7e": {
@@ -924,7 +924,7 @@
     "title": "Chicago Style Deep-Dish Pizza Dough"
   },
   "r2v2eq4rp6z4bub4o2cytpr2iq": {
-    "category": "sauces",
+    "category": "appetizers",
     "title": "Homemade Green Chile Queso Cheese Dip"
   },
   "r4bk7n4bqf5kc3u3mus2hin3mu": {
@@ -976,7 +976,7 @@
     "title": "Ba Tay So (Bánh Patê Sô)"
   },
   "scskfqzbh3z3htrikiq6wnxjfq": {
-    "category": "mains",
+    "category": "tacos",
     "title": "Slow Cooker Chile Verde"
   },
   "sk2haayzn23wm2squzc5xovjoa": {
@@ -992,7 +992,7 @@
     "title": "Smoked Brisket "
   },
   "skgulhbb2e5m6wy4buim4ckmoe": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Cowboy Candy (Candied Jalapeños)"
   },
   "smgy67kut2ja72oac4hku4tlyu": {
@@ -1024,7 +1024,7 @@
     "title": "Basic Caramelized Onions"
   },
   "tn6ctgixs3rorl2bisrnm6e65q": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Scallops over Wilted Spinach Parmesan Risotto"
   },
   "tnfe6qkzkrpyydgnkcwkeasp2e": {
@@ -1044,11 +1044,11 @@
     "title": "Rib-Eye Steak with Mushroom Sauce"
   },
   "tqxwzhzjkhdcvmj7j7cyu4jdee": {
-    "category": "mains",
+    "category": "soups",
     "title": "Shrimp, Andouille, and Okra Gumbo"
   },
   "tr37psrdw3sos3hyca2fgb4lua": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Tagliatelle Bolognese"
   },
   "ttw6e27dhifpm3m22fsz7iwqti": {
@@ -1056,7 +1056,7 @@
     "title": "Patchoulie Ginger Tea"
   },
   "u5r74n2hinnemakmionogxczgi": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Mac n Cheese"
   },
   "u753fc4qdbdpjlp24xe6tj3afq": {
@@ -1068,7 +1068,7 @@
     "title": "Empanada Dough"
   },
   "udw2pf5shfmrczocdqcefobt54": {
-    "category": "mains",
+    "category": "soups",
     "title": "New Orleans Gumbo with Shrimp and Sausage"
   },
   "ugkdaffp6ztg7ffg6coua7du74": {
@@ -1076,7 +1076,7 @@
     "title": "Smoked Burgers"
   },
   "uivkbwfct6lmaxjm6qn4id2gdq": {
-    "category": "mains",
+    "category": "breakfast",
     "title": "Shakshuka (Poached Eggs in Spicy Tomato Sauce)"
   },
   "uj5qxhctuesjzofrw3kvxqtace": {
@@ -1088,7 +1088,7 @@
     "title": "Homemade Tomato Sauce"
   },
   "uoasjlpmy3swbcox7n5s5kjm64": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Quick Pickled Sweet Peppers"
   },
   "uqfibxhee4nrnju7qlgbayhl4i": {
@@ -1100,7 +1100,7 @@
     "title": "Homemade Mozzarella Cheese"
   },
   "uubyxcwb46zsnxjg4lzrgqcx7y": {
-    "category": "mains",
+    "category": "appetizers",
     "title": "Lobster Artichoke Dip"
   },
   "uwazrj2wsrbz4aiv3ucl4z75gy": {
@@ -1112,7 +1112,7 @@
     "title": "Masterchef Australia Fresh Mayonnaise"
   },
   "vajlu3cmbdtsuk2piloymi74e4": {
-    "category": "sides",
+    "category": "salads",
     "title": "Heidi's Deli Egg Salad Sandwich"
   },
   "vd24j55frqmwmpgdgzkjcmruqi": {
@@ -1120,7 +1120,7 @@
     "title": "Sourdough Discard Pretzel Bites"
   },
   "vhxlo6dpxsraye5ly7wcuuu77e": {
-    "category": "sides",
+    "category": "tacos",
     "title": "Easy Authentic Mexican Rice"
   },
   "vlb2hxohmtsip632monnwtyfte": {
@@ -1136,7 +1136,7 @@
     "title": "Braised Short Ribs"
   },
   "vtkpmbpzr4pzrwn7tlew2y3ipy": {
-    "category": "sides",
+    "category": "salads",
     "title": "Elote-Style Roasted Corn and Poblano Salad"
   },
   "vvi4fjukr534xtt6anrrigwpde": {
@@ -1144,15 +1144,15 @@
     "title": "Paella"
   },
   "vwre4q3l2pzoikedwepv5tb4ra": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Linguine with Shrimp Scampi"
   },
   "vyb3fkqyypxyk3qqntmumhdgvy": {
-    "category": "mains",
+    "category": "breads",
     "title": "Naan"
   },
   "week2okt4e4ouidjmz6w7yegl4": {
-    "category": "sauces",
+    "category": "rubs",
     "title": "Sage Rosemary Salt"
   },
   "wfghn5ppwdh5ngczvbfdijzhxq": {
@@ -1184,7 +1184,7 @@
     "title": "Hot Cocoa Mix (Big Batch)"
   },
   "wwubbwt572thbdjwymswlgkore": {
-    "category": "mains",
+    "category": "breakfast",
     "title": "Air Fryer Baked Eggs"
   },
   "x4f3z7rskx5fuoxpuyjczxltyq": {
@@ -1224,7 +1224,7 @@
     "title": "Crispy Duck Breast with Caper-Cherry Sauce"
   },
   "y2j5qqo2i6tqsruma4pxcbhv3u": {
-    "category": "sides",
+    "category": "soups",
     "title": "Cauliflower Chowder"
   },
   "y7u6gh2tho2efspgwmiwgeandq": {
@@ -1236,7 +1236,7 @@
     "title": "The Best Bacon Onion Jam"
   },
   "yhgitgskhwzkhcivinsmtav4qm": {
-    "category": "mains",
+    "category": "soups",
     "title": "Texas Chili"
   },
   "yjgczvftcybcg2npdshug672g4": {
@@ -1244,7 +1244,7 @@
     "title": "Oxtail Pho"
   },
   "ysflaorw2upleangjq5e4okxza": {
-    "category": "mains",
+    "category": "appetizers",
     "title": "Cocktail Meatballs"
   },
   "ysxwncuycweg73dls53ly36nce": {
@@ -1264,19 +1264,19 @@
     "title": "Tangy Memphis BBQ Sauce"
   },
   "z5r2j4oobpfhro5r7r4km25ali": {
-    "category": "sides",
+    "category": "salads",
     "title": "Watermelon, Cherry & Feta Salad"
   },
   "zbox42b5uy2uk6ooemmqesufoq": {
-    "category": "mains",
+    "category": "appetizers",
     "title": "Olive Bruschetta"
   },
   "zfqgii7dcx43sv7lipoxy7jy3m": {
-    "category": "mains",
+    "category": "pasta",
     "title": "Rigatoni with Sausage & Fennel"
   },
   "zh7swi4qlxvmziezhry5hxrlxe": {
-    "category": "breads",
+    "category": "pasta",
     "title": "Basic Homemade Pasta"
   },
   "zhvf67pfyvu5qchcdl6skfehse": {
@@ -1296,7 +1296,7 @@
     "title": "Smoked St Louis Ribs"
   },
   "zuvjnwl4qb3gyva5e2ajy5o2de": {
-    "category": "mains",
+    "category": "tacos",
     "title": "Slow Roasted Lamb Tacos"
   }
 }
