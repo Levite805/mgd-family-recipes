@@ -1191,6 +1191,8 @@ function matches(r) {
     if (!(r.tags || []).includes('Moser Recipes')) return false;
   } else if (activeFilter === 'dishong') {
     if (!(r.tags || []).includes('Dishong Recipes')) return false;
+  } else if (activeFilter.startsWith('attr:')) {
+    if (r.attribution !== activeFilter.slice(5)) return false;
   } else if (activeFilter !== 'all') {
     if (r.category !== activeFilter) return false;
   }
@@ -1301,28 +1303,15 @@ function render() {
 // ── COUNTS
 function updateCounts() {
   const saved = { filter: activeFilter, query: searchQuery };
-  const allCats = ['sourdough','smoked','breads','asian','soups','pasta','tacos','breakfast','mains','sides','salads','appetizers','sauces','rubs','desserts','reference'];
-
-  // All
-  activeFilter = 'all'; searchQuery = '';
-  document.getElementById('count-all').textContent = RECIPES.filter(matches).length;
-
-  allCats.forEach(cat => {
-    activeFilter = cat; searchQuery = '';
-    document.getElementById(`count-${cat}`).textContent = RECIPES.filter(matches).length;
+  // Generic over every chip currently in the filter bar -- covers the
+  // static category/cookbook/family chips AND the dynamically-generated
+  // attribution chips (see buildAttributionChips()) without needing a
+  // hardcoded list kept in sync with what's actually in the DOM.
+  document.querySelectorAll('.chip').forEach(chip => {
+    activeFilter = chip.dataset.cat; searchQuery = '';
+    const countEl = chip.querySelector('.count');
+    if (countEl) countEl.textContent = RECIPES.filter(matches).length;
   });
-
-  // Cookbook
-  activeFilter = 'cookbook'; searchQuery = '';
-  document.getElementById('count-cookbook').textContent = RECIPES.filter(matches).length;
-
-  // Family tags
-  activeFilter = 'gruenberg'; searchQuery = '';
-  document.getElementById('count-gruenberg').textContent = RECIPES.filter(matches).length;
-  activeFilter = 'moser'; searchQuery = '';
-  document.getElementById('count-moser').textContent = RECIPES.filter(matches).length;
-  activeFilter = 'dishong'; searchQuery = '';
-  document.getElementById('count-dishong').textContent = RECIPES.filter(matches).length;
 
   activeFilter = saved.filter; searchQuery = saved.query;
 }
@@ -1516,7 +1505,13 @@ document.getElementById('modalContent').addEventListener('click', e => {
   li.classList.toggle('checked');
 });
 
-document.querySelectorAll('.chip').forEach(chip => {
+// Shared between the static chips already in the HTML and the
+// dynamically-generated attribution chips below (recipe attributions
+// -- "Grandma Marty's Recipe", "Micheal's Recipe", etc. -- come from
+// whatever whole-line-italic "X's Recipe" text shows up in a recipe's
+// notes, so unlike the fixed category/family chips this list can't be
+// hardcoded; it's rebuilt from RECIPES at load time).
+function wireChip(chip) {
   chip.addEventListener('click', () => {
     // Clicking the already-active filter chip again deselects it and
     // falls back to "All", rather than leaving it stuck active with no
@@ -1524,11 +1519,12 @@ document.querySelectorAll('.chip').forEach(chip => {
     const alreadyActive = chip.classList.contains('active');
     const targetCat = (alreadyActive && chip.dataset.cat !== 'all') ? 'all' : chip.dataset.cat;
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    document.querySelector(`.chip[data-cat="${targetCat}"]`).classList.add('active');
+    document.querySelector(`.chip[data-cat="${CSS.escape(targetCat)}"]`).classList.add('active');
     activeFilter = targetCat;
     render();
   });
-});
+}
+document.querySelectorAll('.chip').forEach(wireChip);
 
 document.getElementById('search').addEventListener('input', e => {
   searchQuery = e.target.value.trim();
@@ -1592,7 +1588,29 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── ATTRIBUTION CHIPS
+// Recipe "callouts" like *Grandma Marty's Recipe* or *Micheal's
+// Recipe* (a whole-line italic near the top of a recipe's notes,
+// parsed into r.attribution by build_recipes.py) get their own filter
+// chip, generated here from whatever names actually show up in
+// RECIPES rather than a fixed list -- new people show up automatically
+// the next time a recipe naming them gets added, no code change needed.
+function buildAttributionChips() {
+  const names = [...new Set(RECIPES.map(r => r.attribution).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  if (!names.length) return;
+  const filterBar = document.getElementById('filterBar');
+  names.forEach(name => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.dataset.cat = 'attr:' + name;
+    chip.innerHTML = `${escHtml(name)}'s Recipes <span class="count"></span>`;
+    filterBar.appendChild(chip);
+    wireChip(chip);
+  });
+}
+
 // ── INIT
+buildAttributionChips();
 updateCounts();
 render();
 
