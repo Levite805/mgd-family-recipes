@@ -107,13 +107,18 @@ def derive_attribution_and_preview(notes: str):
     """Look for a whole-line italic or bold metadata line near the top of
     the notes, e.g. *Grandma Marty's Recipe*, *Source: The Sourdough
     Journey*, **Yield:** one loaf, or **Makes 4 Servings**. If it matches
-    "X's Recipe...", X becomes the attribution too.
+    "X's Recipe...", X becomes the attribution -- but that exact line is
+    NOT also used as the preview in that case, since the card/modal
+    already show a separate "X's Recipe" attribution badge; showing the
+    identical text again as the preview line right below it is
+    redundant. The search continues past it for a real preview instead.
 
     Otherwise fall back to the first "substantial" ingredient-style
     bullet or numbered step (skipping trivially short ones like "Sugar"
     or "Milk"), stripped of markdown.
     """
     lines = notes.split("\n")
+    attribution = ""
     for line in lines[:5]:
         s = line.strip()
         # Whole-line italic: starts with * immediately followed by a
@@ -123,7 +128,9 @@ def derive_attribution_and_preview(notes: str):
         if m:
             inner = m.group(1).strip()
             name_m = re.match(r"^(.+?)'s Recipe\b", inner)
-            attribution = name_m.group(1).strip() if name_m else ""
+            if name_m:
+                attribution = name_m.group(1).strip()
+                continue  # don't use this line as the preview too
             return attribution, inner
         # Whole-line bold metadata, e.g. "**Yield:** one loaf" or
         # "**Makes 4 Servings**".
@@ -132,7 +139,7 @@ def derive_attribution_and_preview(notes: str):
             inner = (m.group(1) + m.group(2)).strip()
             inner = _strip_markdown(inner)
             if inner:
-                return "", inner
+                return attribution, inner
 
     # Fallback: first substantial bullet ("* text") or numbered step
     # ("1. text"), stripped of markdown. Short bullets (bare ingredient
@@ -154,10 +161,10 @@ def derive_attribution_and_preview(notes: str):
 
     for item in candidates:
         if len(item) >= MIN_PREVIEW_LEN:
-            return "", item
+            return attribution, item
     if candidates:
-        return "", candidates[0]
-    return "", ""
+        return attribution, candidates[0]
+    return attribution, ""
 
 
 def build_recipe(item: dict, categories: dict, review: list, photos: dict) -> dict:
