@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Review Recipe Submissions</title>
+<style>
+:root {
+  --bg: #F9FCFE; --surface: #FFFFFF; --border: #DEF0FC;
+  --accent: #0E70B0; --accent-light: #ECF7FD; --accent-dark: #0A5281;
+  --text: #1C1C1C; --text-sub: #606B71; --text-muted: #8E9499;
+  --success: #387343; --danger: #733A3A;
+  --chip-bg: #F3FAFE; --chip-hover: #EAF5FD;
+  --radius: 12px; --radius-sm: 8px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: var(--font); background: var(--bg); color: var(--text);
+  margin: 0; padding: 24px 16px 60px;
+}
+.wrap { max-width: 780px; margin: 0 auto; }
+h1 { font-size: 1.3rem; margin: 0 0 4px; }
+.subtitle { font-size: 0.85rem; color: var(--text-sub); margin: 0 0 24px; }
+.status-line { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px 20px; margin-bottom: 18px;
+}
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+.card-title { font-size: 1.05rem; font-weight: 700; margin: 0; }
+.card-meta { font-size: 0.78rem; color: var(--text-muted); }
+.card-meta strong { color: var(--text-sub); font-weight: 600; }
+.card-photo { max-width: 220px; max-height: 220px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: block; margin: 10px 0; object-fit: cover; }
+.card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 4px; }
+button {
+  border: 1.5px solid var(--border); background: var(--chip-bg); color: var(--text-sub);
+  border-radius: 20px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  font-family: inherit;
+}
+button:hover { background: var(--chip-hover); border-color: var(--accent); color: var(--accent); }
+button.handle-btn { border-color: var(--success); color: var(--success); }
+button.handle-btn:hover { background: #eafaf0; }
+.copy-flash { color: var(--success); font-size: 0.78rem; margin-left: 4px; opacity: 0; transition: opacity 0.2s; }
+.copy-flash.show { opacity: 1; }
+details { margin-top: 10px; }
+summary { cursor: pointer; font-size: 0.82rem; color: var(--accent); font-weight: 600; }
+.preview {
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);
+  padding: 10px 14px; margin-top: 8px; font-size: 0.88rem; line-height: 1.6;
+}
+.preview h1, .preview h2, .preview h3, .preview h4 { margin: 12px 0 6px; }
+.preview ul, .preview ol { margin: 4px 0 10px 18px; }
+.preview p { margin: 0 0 8px; }
+.raw-text {
+  width: 100%; min-height: 160px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.78rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg); color: var(--text); padding: 8px 10px; margin-top: 8px;
+}
+.empty-state { text-align: center; color: var(--text-muted); padding: 60px 20px; font-size: 0.95rem; }
+.error-state { color: var(--danger); font-size: 0.85rem; padding: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Recipe Submissions</h1>
+  <p class="subtitle">Pending recipes submitted through the public site. Copy the title and recipe text into a new 1Password item, then mark it handled here.</p>
+  <div class="status-line" id="statusLine">Loading…</div>
+  <div id="list"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc,
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+// Same Firebase project as recipes.html/index.html -- see
+// project_recipes_visitor_notes memory for the config's rationale
+// (it's meant to be public; security is entirely in Firestore rules).
+const firebaseConfig = {
+  apiKey: "AIzaSyCbRbbsyYZLysfr-1jKImKdwE8L-zK1kH8",
+  authDomain: "gruenberg-recipes.firebaseapp.com",
+  projectId: "gruenberg-recipes",
+  storageBucket: "gruenberg-recipes.firebasestorage.app",
+  messagingSenderId: "250018101536",
+  appId: "1:250018101536:web:47f28df30da322e2a2ff45",
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const submissionsCol = collection(db, "recipeSubmissions");
+
+function escHtml(s) {
+  return (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// Kept in sync by hand with recipes.html's CAT_LABELS -- just for
+// display here (the raw category id is what actually needs to go into
+// 1Password/categories.json, but the readable label is friendlier to
+// scan while reviewing a batch of submissions).
+const CAT_LABELS = {
+  sourdough: 'Sourdough', smoked: 'Smoked & BBQ', breads: 'Breads & Doughs',
+  asian: 'Asian & Filipino', soups: 'Soups & Stews', pasta: 'Pasta & Risotto',
+  tacos: 'Tacos & Mexican', breakfast: 'Breakfast & Brunch', mains: 'Mains',
+  sides: 'Sides & Salads', salads: 'Salads & Dressings', appetizers: 'Appetizers & Dips',
+  sauces: 'Sauces & Condiments', rubs: 'Rubs, Spices & Pickles',
+  desserts: 'Desserts & Baking', reference: 'Reference',
+};
+
+// Minimal copy of recipes.html's markdown renderer, kept in sync by
+// hand -- duplicated here rather than shared via an import specifically
+// so this standalone admin page has zero dependency on recipes.html
+// existing/loading correctly (it's a separate, unlinked page).
+const inline = s => s
+  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
+  .replace(/(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]])/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+function buildTable(lines) {
+  if (lines.length < 2) return lines.map(l => `<p>${inline(l)}</p>`).join('');
+  const parse = l => l.split('|').slice(1, -1).map(c => c.trim());
+  const headers = parse(lines[0]);
+  const rows = lines.slice(2).map(parse);
+  let html = '<table><thead><tr>';
+  headers.forEach(h => html += `<th>${inline(h)}</th>`);
+  html += '</tr></thead><tbody>';
+  rows.forEach(r => {
+    html += '<tr>';
+    r.forEach(c => html += `<td>${inline(c)}</td>`);
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+function renderMd(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  const out = [];
+  let inUl = false, inOl = false;
+  const flush = () => {
+    if (inUl) { out.push('</ul>'); inUl = false; }
+    if (inOl) { out.push('</ol>'); inOl = false; }
+  };
+  let tableLines = [], inTable = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith('|') && line.endsWith('|')) {
+      if (!inTable) { flush(); inTable = true; tableLines = []; }
+      tableLines.push(line);
+      continue;
+    } else if (inTable) {
+      out.push(buildTable(tableLines));
+      tableLines = []; inTable = false;
+    }
+    if (!line) { flush(); out.push(''); continue; }
+    if (line === '---') { flush(); out.push('<hr>'); continue; }
+    const hm = line.match(/^(#{1,4})\s+(.+)/);
+    if (hm) { flush(); out.push(`<h${hm[1].length}>${inline(hm[2])}</h${hm[1].length}>`); continue; }
+    const noteM = line.match(/^\*([^*].+[^*])\*\s*$/);
+    if (noteM) { flush(); out.push(`<div class="note-block">${inline(noteM[1])}</div>`); continue; }
+    if (/^[*-] /.test(line)) {
+      if (inOl) { out.push('</ol>'); inOl = false; }
+      if (!inUl) { out.push('<ul>'); inUl = true; }
+      out.push(`<li>${inline(line.slice(2))}</li>`);
+      continue;
+    }
+    const olm = line.match(/^(\d+)\. (.+)/);
+    if (olm) {
+      if (inUl) { out.push('</ul>'); inUl = false; }
+      if (!inOl) { out.push('<ol>'); inOl = true; }
+      out.push(`<li>${inline(olm[2])}</li>`);
+      continue;
+    }
+    flush();
+    out.push(`<p>${inline(line)}</p>`);
+  }
+  if (inTable) out.push(buildTable(tableLines));
+  flush();
+  return out.join('\n');
+}
+
+function timeAgo(date) {
+  if (!date) return '';
+  const s = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
+  const d = Math.floor(h / 24); if (d < 30) return d + 'd ago';
+  return date.toLocaleDateString();
+}
+
+async function copyText(btn, text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (e) {
+    // Fallback for contexts where the async Clipboard API is blocked
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  const flash = btn.nextElementSibling && btn.nextElementSibling.classList.contains('copy-flash')
+    ? btn.nextElementSibling
+    : null;
+  if (flash) {
+    flash.classList.add('show');
+    setTimeout(() => flash.classList.remove('show'), 1400);
+  }
+}
+
+async function markHandled(id) {
+  await updateDoc(doc(db, "recipeSubmissions", id), { status: "handled" });
+}
+
+// Keeps a lookup from submission id -> its title/body so the click
+// handler below never has to round-trip that text through an HTML
+// attribute. Recipe titles/text routinely contain apostrophes and
+// quotes (e.g. "Grandma Marty's Recipe"), which broke a first version
+// of this page that embedded JSON.stringify(text) directly inside a
+// single-quoted onclick="" attribute -- a title containing an
+// apostrophe would prematurely close the attribute and corrupt the
+// generated HTML. Event delegation with data-id lookups sidesteps that
+// escaping problem entirely.
+let submissionsById = {};
+
+// Single delegated listener on the list container, rather than one
+// inline onclick per button -- also means re-rendering the whole list
+// on every onSnapshot update (via innerHTML =) never leaves stale
+// listeners behind.
+document.getElementById('list').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const card = btn.closest('.card');
+  const id = card && card.dataset.id;
+  const sub = id && submissionsById[id];
+  if (!sub) return;
+  if (btn.dataset.action === 'copy-title') copyText(btn, sub.title);
+  else if (btn.dataset.action === 'copy-body') copyText(btn, sub.body);
+  else if (btn.dataset.action === 'copy-tag') copyText(btn, sub.familyTag || '');
+  else if (btn.dataset.action === 'mark-handled') markHandled(id);
+});
+
+function renderList(docs) {
+  const listEl = document.getElementById('list');
+  const statusEl = document.getElementById('statusLine');
+  statusEl.textContent = docs.length
+    ? `${docs.length} pending submission${docs.length === 1 ? '' : 's'}`
+    : '';
+  submissionsById = {};
+  docs.forEach(d => { submissionsById[d.id] = d; });
+  if (!docs.length) {
+    listEl.innerHTML = '<div class="empty-state">No pending recipe submissions.</div>';
+    return;
+  }
+  listEl.innerHTML = docs.map(d => `
+    <div class="card" data-id="${escHtml(d.id)}">
+      <div class="card-top">
+        <h2 class="card-title">${escHtml(d.title)}</h2>
+        <span class="card-meta">${d.createdAt ? timeAgo(d.createdAt) : ''}</span>
+      </div>
+      <div class="card-meta">
+        <strong>Submitted by:</strong> ${d.name ? escHtml(d.name) : '<em>anonymous</em>'}
+        ${d.category ? ` &middot; <strong>Category:</strong> ${escHtml(CAT_LABELS[d.category] || d.category)}` : ''}
+        ${d.familyTag ? ` &middot; <strong>Family tag:</strong> ${escHtml(d.familyTag)}` : ''}
+      </div>
+      ${d.photoData ? `<img class="card-photo" src="${d.photoData}" alt="Submitted photo">` : ''}
+      <div class="card-actions">
+        <button data-action="copy-title">Copy title</button><span class="copy-flash">Copied!</span>
+        ${d.familyTag ? `<button data-action="copy-tag">Copy tag</button><span class="copy-flash">Copied!</span>` : ''}
+        <button data-action="copy-body">Copy recipe text</button><span class="copy-flash">Copied!</span>
+        <button class="handle-btn" data-action="mark-handled">Mark handled</button>
+      </div>
+      <details>
+        <summary>Show formatted preview</summary>
+        <div class="preview">${renderMd(d.body)}</div>
+      </details>
+      <details>
+        <summary>Show raw text</summary>
+        <textarea class="raw-text" readonly>${escHtml(d.body)}</textarea>
+      </details>
+    </div>`
+  ).join('');
+}
+
+const q = query(submissionsCol, where('status', '==', 'pending'), orderBy('createdAt', 'desc'));
+onSnapshot(q, snap => {
+  const docs = snap.docs.map(d => {
+    const data = d.data();
+    return { id: d.id, ...data, createdAt: data.createdAt ? data.createdAt.toDate() : null };
+  });
+  renderList(docs);
+}, err => {
+  console.error('recipeSubmissions query failed:', err);
+  document.getElementById('list').innerHTML =
+    `<div class="error-state">Could not load submissions: ${escHtml(err.message)}</div>`;
+  document.getElementById('statusLine').textContent = '';
+});
+</script>
+</body>
+</html>

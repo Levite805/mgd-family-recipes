@@ -579,6 +579,16 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
 }
 .tools-toggle:hover { background: var(--chip-hover); border-color: var(--accent); }
 .tools-toggle svg { width: 16px; height: 16px; }
+.submit-recipe-toggle {
+  flex-shrink: 0; width: 36px; height: 36px;
+  border: 1.5px solid var(--border); background: var(--chip-bg);
+  border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-sub); transition: background 0.15s, border-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.submit-recipe-toggle:hover { background: var(--chip-hover); border-color: var(--accent); color: var(--accent); }
+.submit-recipe-toggle svg { width: 16px; height: 16px; }
 
 /* ── TOOLS MODAL TABS ── */
 .tools-tabs {
@@ -746,6 +756,41 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
 .note-status { font-size: 0.78rem; color: var(--text-muted); min-height: 1em; }
 .note-status.error { color: var(--danger); }
 .note-status.success { color: var(--success); }
+
+/* ── SUBMIT A RECIPE ── */
+.submit-recipe-intro { font-size: 0.88rem; color: var(--text-sub); margin: 0 0 16px; }
+.submit-recipe-form { display: flex; flex-direction: column; gap: 10px; }
+.sr-format-toolbar { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.sr-format-btn {
+  border: 1.5px solid var(--border); background: var(--chip-bg); color: var(--text-sub);
+  border-radius: var(--radius-sm); padding: 5px 10px; font-size: 0.78rem; font-weight: 500;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.15s, border-color 0.15s;
+}
+.sr-format-btn:hover { background: var(--chip-hover); border-color: var(--accent); color: var(--accent); }
+.sr-select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) {
+  .sr-select-row { grid-template-columns: 1fr; }
+}
+.sr-select-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sr-select { width: 100%; }
+.sr-editor-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) {
+  .sr-editor-row { grid-template-columns: 1fr; }
+}
+.sr-editor-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sr-editor-label { font-size: 0.75rem; font-weight: 600; color: var(--text-sub); }
+.sr-textarea { min-height: 220px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.82rem; }
+.sr-preview {
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);
+  padding: 10px 12px; min-height: 220px; max-height: 400px; overflow-y: auto; font-size: 0.85rem;
+}
+.sr-preview-empty { color: var(--text-muted); font-style: italic; font-size: 0.82rem; }
+.sr-format-hint { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+.sr-format-hint code {
+  background: var(--chip-bg); border-radius: 4px; padding: 1px 5px; font-size: 0.75rem;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.sr-submit-btn { margin-left: 0; align-self: flex-end; }
 </style>
 </head>
 <body>
@@ -784,6 +829,11 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
         <button class="tools-toggle" id="toolsToggle" data-toggle="tools" aria-label="Cooking Tools" title="Cooking Tools">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </button>
+        <button class="submit-recipe-toggle" id="submitRecipeToggle" data-toggle="submit-recipe" aria-label="Submit a Recipe" title="Submit a Recipe">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
           </svg>
         </button>
       </div>
@@ -1013,6 +1063,97 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
         <button class="timer-add-btn" id="timerAddCustom">Add Timer</button>
       </div>
       <div class="timer-list" id="timerList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="submitRecipeModalOverlay" role="dialog" aria-modal="true">
+  <div class="modal" id="submitRecipeModal">
+    <div class="modal-header">
+      <div class="modal-header-meta">
+        <div class="modal-title">Submit a Recipe</div>
+      </div>
+      <div class="modal-header-actions">
+        <button class="close-btn" id="submitRecipeCloseBtn" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M1 1l12 12M13 1L1 13"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p class="submit-recipe-intro">
+        Share a family recipe! It'll be reviewed before being added to the site.
+      </p>
+      <form class="submit-recipe-form" id="submitRecipeForm">
+        <input type="text" class="note-input" id="srName" placeholder="Your name (optional)" maxlength="60">
+        <input type="text" class="note-input" id="srTitle" placeholder="Recipe title" maxlength="120" required>
+
+        <div class="sr-select-row">
+          <div class="sr-select-col">
+            <span class="sr-editor-label">Category (optional)</span>
+            <select class="conv-select sr-select" id="srCategory">
+              <option value="">Not sure / skip</option>
+              <option value="sourdough">Sourdough</option>
+              <option value="smoked">Smoked &amp; BBQ</option>
+              <option value="breads">Breads &amp; Doughs</option>
+              <option value="asian">Asian &amp; Filipino</option>
+              <option value="soups">Soups &amp; Stews</option>
+              <option value="pasta">Pasta &amp; Risotto</option>
+              <option value="tacos">Tacos &amp; Mexican</option>
+              <option value="breakfast">Breakfast &amp; Brunch</option>
+              <option value="mains">Mains</option>
+              <option value="sides">Sides &amp; Salads</option>
+              <option value="salads">Salads &amp; Dressings</option>
+              <option value="appetizers">Appetizers &amp; Dips</option>
+              <option value="sauces">Sauces &amp; Condiments</option>
+              <option value="rubs">Rubs, Spices &amp; Pickles</option>
+              <option value="desserts">Desserts &amp; Baking</option>
+              <option value="reference">Reference</option>
+            </select>
+          </div>
+          <div class="sr-select-col">
+            <span class="sr-editor-label">Family tag (optional)</span>
+            <select class="conv-select sr-select" id="srFamilyTag">
+              <option value="">None</option>
+              <option value="Gruenberg Recipes">Gruenberg Recipes</option>
+              <option value="Moser Recipes">Moser Recipes</option>
+              <option value="Dishong Recipes">Dishong Recipes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sr-format-toolbar" id="srFormatToolbar">
+          <button type="button" class="sr-format-btn" data-md="heading" title="Section heading">## Heading</button>
+          <button type="button" class="sr-format-btn" data-md="bold" title="Bold"><strong>B</strong></button>
+          <button type="button" class="sr-format-btn" data-md="italic" title="Italic"><em>I</em></button>
+          <button type="button" class="sr-format-btn" data-md="bullet" title="Bullet list">• List</button>
+          <button type="button" class="sr-format-btn" data-md="number" title="Numbered steps">1. Steps</button>
+        </div>
+        <div class="sr-editor-row">
+          <div class="sr-editor-col">
+            <span class="sr-editor-label">Recipe (ingredients &amp; instructions)</span>
+            <textarea class="note-textarea sr-textarea" id="srBody" placeholder="## Ingredients&#10;* 2 cups flour&#10;* 1 tsp salt&#10;&#10;## Instructions&#10;1. Mix everything together&#10;2. Bake at 350°F for 20 minutes" maxlength="8000" required></textarea>
+          </div>
+          <div class="sr-editor-col sr-preview-col">
+            <span class="sr-editor-label">Preview</span>
+            <div class="sr-preview recipe-content" id="srPreview"><span class="sr-preview-empty">Formatted preview will appear here…</span></div>
+          </div>
+        </div>
+        <div class="sr-format-hint">
+          Formatting: <code>## Heading</code>, <code>* item</code> or <code>- item</code> for bullets, <code>1. item</code> for numbered steps, <code>**bold**</code>, <code>*italic*</code>.
+        </div>
+
+        <div class="note-form-row">
+          <label class="note-photo-label" for="srPhoto">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 15l-5-5-4 4-3-3-6 6"/></svg>
+            <span id="srPhotoLabel">Add a photo (optional)</span>
+          </label>
+          <input type="file" id="srPhoto" accept="image/*" hidden>
+        </div>
+        <button type="submit" class="note-submit-btn sr-submit-btn" id="srSubmitBtn">Submit Recipe</button>
+        <div class="note-status" id="srStatus"></div>
+      </form>
     </div>
   </div>
 </div>
@@ -1737,6 +1878,163 @@ document.querySelectorAll('.tools-tab').forEach(tab => {
   });
 });
 
+/* ══════════════════════════════════════════════════════
+   SUBMIT A RECIPE
+   ══════════════════════════════════════════════════════ */
+
+/* ── MODAL OPEN/CLOSE ── */
+document.getElementById('submitRecipeToggle').addEventListener('click', () => {
+  document.getElementById('submitRecipeModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+});
+document.getElementById('submitRecipeCloseBtn').addEventListener('click', closeSubmitRecipeModal);
+document.getElementById('submitRecipeModalOverlay').addEventListener('click', e => {
+  if (e.target.id === 'submitRecipeModalOverlay') closeSubmitRecipeModal();
+});
+function closeSubmitRecipeModal() {
+  document.getElementById('submitRecipeModalOverlay').classList.remove('open');
+  const recipeModalOpen = document.getElementById('modalOverlay').classList.contains('open');
+  document.body.style.overflow = recipeModalOpen ? 'hidden' : '';
+}
+
+/* ── FORMATTING TOOLBAR ── */
+// Wraps/inserts markdown syntax around the textarea's current
+// selection (or at the cursor if nothing's selected), mirroring the
+// exact subset renderMd() actually understands elsewhere on the site
+// (# headings, * / - bullets, 1. numbered steps, **bold**, *italic*)
+// so a submitter's recipe renders identically to the site's existing
+// recipes once approved and copied into 1Password.
+function srApplyFormat(kind) {
+  const ta = document.getElementById('srBody');
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const selected = ta.value.slice(start, end);
+  let before = '', after = '', placeholder = '';
+  if (kind === 'bold') { before = '**'; after = '**'; placeholder = 'bold text'; }
+  else if (kind === 'italic') { before = '*'; after = '*'; placeholder = 'italic text'; }
+  else if (kind === 'heading') { before = '## '; after = ''; placeholder = 'Heading'; }
+  else if (kind === 'bullet') { before = '* '; after = ''; placeholder = 'List item'; }
+  else if (kind === 'number') { before = '1. '; after = ''; placeholder = 'Step one'; }
+
+  const isLinePrefix = kind === 'heading' || kind === 'bullet' || kind === 'number';
+  if (isLinePrefix) {
+    // Line-prefix styles insert at the start of the current line rather
+    // than wrapping the selection, so they don't end up mid-word.
+    const lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
+    const text = selected || placeholder;
+    ta.setRangeText(before + text, lineStart, end, 'end');
+  } else {
+    const text = selected || placeholder;
+    ta.setRangeText(before + text + after, start, end, 'end');
+  }
+  ta.focus();
+  srUpdatePreview();
+}
+document.querySelectorAll('.sr-format-btn').forEach(btn => {
+  btn.addEventListener('click', () => srApplyFormat(btn.dataset.md));
+});
+
+/* ── LIVE PREVIEW ── */
+// Reuses the site's own renderMd()/inline() -- same rendering path
+// every existing recipe already goes through -- so what a submitter
+// sees in the preview pane matches exactly what the recipe would look
+// like once actually added to the site.
+function srUpdatePreview() {
+  const body = document.getElementById('srBody').value.trim();
+  const previewEl = document.getElementById('srPreview');
+  previewEl.innerHTML = body
+    ? renderMd(body)
+    : '<span class="sr-preview-empty">Formatted preview will appear here…</span>';
+}
+document.getElementById('srBody').addEventListener('input', srUpdatePreview);
+
+/* ── PHOTO PICKER ── */
+// Reuses the same client-side resize/compress helper the visitor-notes
+// photo upload already relies on (defined later, in the Firebase
+// module script) -- see window.srResizeImageToDataUrl bridge below.
+let srSelectedPhotoDataUrl = null;
+document.getElementById('srPhoto').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  const label = document.getElementById('srPhotoLabel');
+  const labelEl = label.closest('label');
+  const statusEl = document.getElementById('srStatus');
+  if (!file) {
+    srSelectedPhotoDataUrl = null;
+    label.textContent = 'Add a photo (optional)';
+    labelEl.classList.remove('has-photo');
+    return;
+  }
+  if (!window.srResizeImageToDataUrl) return; // module script not ready yet
+  label.textContent = 'Compressing…';
+  try {
+    srSelectedPhotoDataUrl = await window.srResizeImageToDataUrl(file);
+    label.textContent = 'Photo attached ✓';
+    labelEl.classList.add('has-photo');
+  } catch (err) {
+    srSelectedPhotoDataUrl = null;
+    label.textContent = 'Add a photo (optional)';
+    labelEl.classList.remove('has-photo');
+    statusEl.textContent = 'Could not process that image — try a different file.';
+    statusEl.className = 'note-status error';
+  }
+});
+
+function srResetForm() {
+  const form = document.getElementById('submitRecipeForm');
+  if (form) form.reset();
+  srSelectedPhotoDataUrl = null;
+  srUpdatePreview();
+  const label = document.getElementById('srPhotoLabel');
+  if (label) {
+    label.textContent = 'Add a photo (optional)';
+    label.closest('label').classList.remove('has-photo');
+  }
+  const statusEl = document.getElementById('srStatus');
+  if (statusEl) { statusEl.textContent = ''; statusEl.className = 'note-status'; }
+}
+
+/* ── SUBMIT ── */
+// Actual Firestore write happens in the module script below (bridged
+// via window.srSubmitRecipe), same reason the visitor-notes feature
+// bridges through window functions: this plain script and the
+// type="module" Firebase script are two separate JS worlds.
+document.getElementById('submitRecipeForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const statusEl = document.getElementById('srStatus');
+  const submitBtn = document.getElementById('srSubmitBtn');
+  const name = document.getElementById('srName').value.trim();
+  const title = document.getElementById('srTitle').value.trim();
+  const body = document.getElementById('srBody').value.trim();
+  const category = document.getElementById('srCategory').value;
+  const familyTag = document.getElementById('srFamilyTag').value;
+
+  if (!title || !body) {
+    statusEl.textContent = 'Please enter at least a title and the recipe itself.';
+    statusEl.className = 'note-status error';
+    return;
+  }
+  if (!window.srSubmitRecipe) {
+    statusEl.textContent = 'Still loading — try again in a moment.';
+    statusEl.className = 'note-status error';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  statusEl.textContent = 'Submitting…';
+  statusEl.className = 'note-status';
+
+  try {
+    await window.srSubmitRecipe({ name, title, body, category, familyTag, photoData: srSelectedPhotoDataUrl });
+    srResetForm();
+    statusEl.textContent = 'Thanks! Your recipe was submitted for review.';
+    statusEl.className = 'note-status success';
+  } catch (err) {
+    statusEl.textContent = 'Something went wrong submitting your recipe: ' + err.message;
+    statusEl.className = 'note-status error';
+  } finally {
+    setTimeout(() => { submitBtn.disabled = false; }, 3000);
+  }
+});
+
 /* ── UNIT CONVERTER ── */
 const VOLUME_UNITS = {
   tsp: { label: 'tsp', factor: 4.92892 },
@@ -2094,6 +2392,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const notesCol = collection(db, "recipeNotes");
+// Separate collection from recipeNotes -- these are proposed NEW
+// recipes awaiting the site owner's manual review/1Password entry, not
+// notes/ratings on an existing recipe. Kept apart so a Firestore rule
+// mistake on one collection can't accidentally expose or corrupt the
+// other, and so the review page only ever has to query one collection.
+const submissionsCol = collection(db, "recipeSubmissions");
 
 let unsubscribe = null;
 let currentUuid = null;
@@ -2262,6 +2566,11 @@ function resizeImageToDataUrl(file) {
     reader.readAsDataURL(file);
   });
 }
+// Bridge for the plain (non-module) script's Submit Recipe photo
+// picker -- same resize/compress helper the visitor-notes photo upload
+// already uses above, just exposed on window so the other script world
+// can call it too, rather than duplicating the whole implementation.
+window.srResizeImageToDataUrl = resizeImageToDataUrl;
 
 document.getElementById("notePhoto").addEventListener("change", async e => {
   const file = e.target.files[0];
@@ -2374,6 +2683,28 @@ document.getElementById("noteForm").addEventListener("submit", async e => {
     console.warn("Could not load community photo/rating data:", err);
   }
 })();
+
+// ── SUBMIT A RECIPE (Firebase Firestore) ──
+// Bridge for the plain script's Submit Recipe form. Writes to the
+// recipeSubmissions collection (separate from recipeNotes -- see
+// above) so the site owner can review pending recipes later via the
+// unlinked review-submissions.html admin page and copy approved ones
+// into 1Password by hand. No moderation gate on the write itself
+// (same public-write model as recipeNotes) -- review happens after
+// the fact, not before a submission lands in Firestore.
+window.srSubmitRecipe = async function ({ name, title, body, category, familyTag, photoData }) {
+  const doc = {
+    title,
+    body,
+    status: "pending",
+    createdAt: serverTimestamp(),
+  };
+  if (name) doc.name = name;
+  if (category) doc.category = category;
+  if (familyTag) doc.familyTag = familyTag;
+  if (photoData) doc.photoData = photoData;
+  await addDoc(submissionsCol, doc);
+};
 </script>
 </body>
 </html>
