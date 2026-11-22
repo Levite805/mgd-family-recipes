@@ -804,6 +804,48 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 .sr-submit-btn { margin-left: 0; align-self: flex-end; }
+
+/* ── RESPONSIVE HARDENING ──
+   Keeps the layout intact at high browser zoom / large OS text sizes,
+   where the viewport is effectively 250-400 CSS px wide. The main
+   culprit was the single-row header (nowrap title + search + 4 buttons)
+   forcing the whole page wider than the screen, which also pushed
+   modals past the screen edge. */
+.header-top { flex-wrap: wrap; row-gap: 10px; }
+.header-controls { flex-wrap: wrap; flex-shrink: 1; }
+.site-title { white-space: normal; overflow-wrap: anywhere; }
+.card-title, .modal-title { overflow-wrap: anywhere; }
+.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.card { min-width: 0; }
+.modal { max-width: min(720px, 100%); }
+.modal-body, .modal-header-meta { min-width: 0; }
+.recipe-content { overflow-wrap: anywhere; }
+.recipe-content img, .recipe-content pre { max-width: 100%; }
+.toast { white-space: normal; text-align: center; max-width: calc(100vw - 32px); }
+.scale-bar { flex-wrap: wrap; }
+.note-input, .note-textarea, .conv-input { max-width: 100%; min-width: 0; }
+@media (max-width: 1024px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) {
+  .site-header { padding: 12px 14px 8px; }
+  .search-wrap { order: 3; flex: 1 1 100%; max-width: none; }
+  .header-top { justify-content: space-between; }
+}
+@media (max-width: 600px) { .grid { grid-template-columns: minmax(0, 1fr); } .recipe-content table { display: block; max-width: 100%; overflow-x: auto; } }
+@media (max-width: 420px) {
+  main { padding: 12px 10px 28px; }
+  .modal-header { padding: 14px 14px 12px; }
+  .modal-body { padding: 16px 14px 28px; }
+  .tools-tabs { padding: 0 8px; }
+  .tools-panel { padding: 16px 14px 28px; }
+  .dark-toggle, .wake-toggle, .tools-toggle, .submit-recipe-toggle, .close-btn { width: 32px; height: 32px; }
+  .share-btn { height: 32px; padding: 0 8px; }
+  .modal-title { font-size: 1.1rem; }
+  .site-title { font-size: 1.1rem; }
+}
+@media (max-width: 320px) {
+  .modal-header-actions, .header-controls { gap: 4px; }
+  .chip { padding: 5px 10px; font-size: 0.78rem; }
+}
 </style>
 </head>
 <body>
