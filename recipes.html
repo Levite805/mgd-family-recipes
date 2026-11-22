@@ -792,10 +792,24 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
 }
 .sr-editor-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .sr-editor-label { font-size: 0.75rem; font-weight: 600; color: var(--text-sub); }
-.sr-textarea { min-height: 220px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.82rem; }
+.sr-textarea { min-height: 220px; resize: vertical; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.82rem; }
 .sr-preview {
   border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);
-  padding: 10px 12px; min-height: 220px; max-height: 400px; overflow-y: auto; font-size: 0.85rem;
+  padding: 10px 12px; min-height: 220px; resize: vertical; overflow-y: auto; font-size: 0.85rem;
+}
+/* Editor can be dragged taller (resize handle) or expanded full screen. */
+.sr-editor { display: flex; flex-direction: column; gap: 10px; }
+.sr-expand-btn { margin-left: auto; }
+.sr-editor.expanded {
+  position: fixed; inset: 0; z-index: 10; background: var(--surface);
+  padding: 14px 16px; overflow: auto; gap: 10px;
+}
+.sr-editor.expanded .sr-editor-row { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr); }
+.sr-editor.expanded .sr-editor-col { min-height: 0; }
+.sr-editor.expanded .sr-textarea,
+.sr-editor.expanded .sr-preview { flex: 1; min-height: 0; height: auto; max-height: none; resize: none; }
+@media (max-width: 640px) {
+  .sr-editor.expanded .sr-editor-row { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
 }
 .sr-preview-empty { color: var(--text-muted); font-style: italic; font-size: 0.82rem; }
 .sr-format-hint { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
@@ -1186,12 +1200,14 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
           </div>
         </div>
 
+        <div class="sr-editor" id="srEditor">
         <div class="sr-format-toolbar" id="srFormatToolbar">
           <button type="button" class="sr-format-btn" data-md="heading" title="Section heading">## Heading</button>
           <button type="button" class="sr-format-btn" data-md="bold" title="Bold"><strong>B</strong></button>
           <button type="button" class="sr-format-btn" data-md="italic" title="Italic"><em>I</em></button>
           <button type="button" class="sr-format-btn" data-md="bullet" title="Bullet list">• List</button>
           <button type="button" class="sr-format-btn" data-md="number" title="Numbered steps">1. Steps</button>
+          <button type="button" class="sr-format-btn sr-expand-btn" id="srExpandBtn" title="Expand the editor to full screen">⤢ Expand</button>
         </div>
         <div class="sr-editor-row">
           <div class="sr-editor-col">
@@ -1205,6 +1221,7 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
         </div>
         <div class="sr-format-hint">
           Formatting: <code>## Heading</code>, <code>* item</code> or <code>- item</code> for bullets, <code>1. item</code> for numbered steps, <code>**bold**</code>, <code>*italic*</code>.
+        </div>
         </div>
 
         <div class="note-form-row">
@@ -1993,6 +2010,7 @@ document.getElementById('submitRecipeModalOverlay').addEventListener('click', e 
   if (e.target.id === 'submitRecipeModalOverlay') closeSubmitRecipeModal();
 });
 function closeSubmitRecipeModal() {
+  srSetExpanded(false);
   document.getElementById('submitRecipeModalOverlay').classList.remove('open');
   const recipeModalOpen = document.getElementById('modalOverlay').classList.contains('open');
   document.body.style.overflow = recipeModalOpen ? 'hidden' : '';
@@ -2033,6 +2051,23 @@ function srApplyFormat(kind) {
 document.querySelectorAll('.sr-format-btn').forEach(btn => {
   btn.addEventListener('click', () => srApplyFormat(btn.dataset.md));
 });
+
+/* ── EXPAND EDITOR ── */
+function srSetExpanded(on) {
+  const ed = document.getElementById('srEditor');
+  ed.classList.toggle('expanded', on);
+  document.getElementById('srExpandBtn').textContent = on ? '✕ Done' : '⤢ Expand';
+}
+document.getElementById('srExpandBtn').addEventListener('click', () => {
+  srSetExpanded(!document.getElementById('srEditor').classList.contains('expanded'));
+});
+// Esc leaves full-screen first, without also closing the modal underneath.
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('srEditor').classList.contains('expanded')) {
+    e.stopImmediatePropagation();
+    srSetExpanded(false);
+  }
+}, true);
 
 /* ── LIVE PREVIEW ── */
 // Reuses the site's own renderMd()/inline() -- same rendering path
