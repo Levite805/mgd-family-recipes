@@ -792,6 +792,20 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
 }
 .sr-editor-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .sr-editor-label { font-size: 0.75rem; font-weight: 600; color: var(--text-sub); }
+/* ── RICH-TEXT (WYSIWYG) EDITOR ── */
+.sr-rich {
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);
+  padding: 10px 14px; min-height: 280px; resize: vertical; overflow: auto;
+  font-size: 0.9rem; outline: none; color: var(--text); -webkit-user-select: text; user-select: text;
+}
+.sr-rich:focus { border-color: var(--accent); }
+.sr-rich:empty::before { content: attr(data-placeholder); color: var(--text-muted); font-style: italic; }
+.sr-editor[data-mode="rich"] .sr-md-col,
+.sr-editor[data-mode="rich"] .sr-preview-col,
+.sr-editor[data-mode="rich"] .sr-format-hint { display: none; }
+.sr-editor[data-mode="rich"] .sr-editor-row { grid-template-columns: minmax(0, 1fr); }
+.sr-editor[data-mode="md"] .sr-rich-col { display: none; }
+.sr-editor.expanded .sr-rich { flex: 1; min-height: 0; resize: none; }
 .sr-textarea { min-height: 220px; resize: vertical; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.82rem; }
 .sr-preview {
   border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);
@@ -799,7 +813,7 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
 }
 /* Editor can be dragged taller (resize handle) or expanded full screen. */
 .sr-editor { display: flex; flex-direction: column; gap: 10px; }
-.sr-expand-btn { margin-left: auto; }
+#srModeBtn { margin-left: auto; }
 .sr-editor.expanded {
   position: fixed; inset: 0; z-index: 10; background: var(--surface);
   padding: 14px 16px; overflow: auto; gap: 10px;
@@ -1200,17 +1214,23 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
           </div>
         </div>
 
-        <div class="sr-editor" id="srEditor">
+        <div class="sr-editor" id="srEditor" data-mode="rich">
         <div class="sr-format-toolbar" id="srFormatToolbar">
           <button type="button" class="sr-format-btn" data-md="heading" title="Section heading">## Heading</button>
+          <button type="button" class="sr-format-btn" data-md="subheading" title="Sub-heading">### Sub</button>
           <button type="button" class="sr-format-btn" data-md="bold" title="Bold"><strong>B</strong></button>
           <button type="button" class="sr-format-btn" data-md="italic" title="Italic"><em>I</em></button>
           <button type="button" class="sr-format-btn" data-md="bullet" title="Bullet list">• List</button>
           <button type="button" class="sr-format-btn" data-md="number" title="Numbered steps">1. Steps</button>
-          <button type="button" class="sr-format-btn sr-expand-btn" id="srExpandBtn" title="Expand the editor to full screen">⤢ Expand</button>
+          <button type="button" class="sr-format-btn sr-expand-btn" id="srModeBtn" title="Switch between formatted editing and raw markdown">&lt;/&gt; Markdown</button>
+          <button type="button" class="sr-format-btn" id="srExpandBtn" title="Expand the editor to full screen">⤢ Expand</button>
         </div>
         <div class="sr-editor-row">
-          <div class="sr-editor-col">
+          <div class="sr-editor-col sr-rich-col">
+            <span class="sr-editor-label">Recipe (edit directly &mdash; formatting shows as you type)</span>
+            <div class="sr-rich recipe-content" id="srRich" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Recipe" data-placeholder="Type or paste your recipe here&hellip;"></div>
+          </div>
+          <div class="sr-editor-col sr-md-col">
             <span class="sr-editor-label">Recipe (ingredients &amp; instructions)</span>
             <textarea class="note-textarea sr-textarea" id="srBody" placeholder="## Ingredients&#10;* 2 cups flour&#10;* 1 tsp salt&#10;&#10;## Instructions&#10;1. Mix everything together&#10;2. Bake at 350°F for 20 minutes" maxlength="8000" required></textarea>
           </div>
@@ -1997,7 +2017,7 @@ document.getElementById('suggestEditBtn').addEventListener('click', () => {
   srResetForm();
   srSetEditMode({ uuid: r.uuid, title: r.title });
   document.getElementById('srTitle').value = r.title;
-  document.getElementById('srBody').value = r.notes || '';
+  srLoadBody(r.notes || '');
   document.getElementById('srCategory').value = r.category || '';
   const fam = (r.tags || []).find(t => ['Gruenberg Recipes', 'Moser Recipes', 'Dishong Recipes'].includes(t));
   document.getElementById('srFamilyTag').value = fam || '';
@@ -2024,6 +2044,7 @@ function closeSubmitRecipeModal() {
 // so a submitter's recipe renders identically to the site's existing
 // recipes once approved and copied into 1Password.
 function srApplyFormat(kind) {
+  if (srMode === 'rich') { srRichFormat(kind); return; }
   const ta = document.getElementById('srBody');
   const start = ta.selectionStart, end = ta.selectionEnd;
   const selected = ta.value.slice(start, end);
@@ -2031,10 +2052,11 @@ function srApplyFormat(kind) {
   if (kind === 'bold') { before = '**'; after = '**'; placeholder = 'bold text'; }
   else if (kind === 'italic') { before = '*'; after = '*'; placeholder = 'italic text'; }
   else if (kind === 'heading') { before = '## '; after = ''; placeholder = 'Heading'; }
+  else if (kind === 'subheading') { before = '### '; after = ''; placeholder = 'Sub-heading'; }
   else if (kind === 'bullet') { before = '* '; after = ''; placeholder = 'List item'; }
   else if (kind === 'number') { before = '1. '; after = ''; placeholder = 'Step one'; }
 
-  const isLinePrefix = kind === 'heading' || kind === 'bullet' || kind === 'number';
+  const isLinePrefix = kind === 'heading' || kind === 'subheading' || kind === 'bullet' || kind === 'number';
   if (isLinePrefix) {
     // Line-prefix styles insert at the start of the current line rather
     // than wrapping the selection, so they don't end up mid-word.
@@ -2048,7 +2070,7 @@ function srApplyFormat(kind) {
   ta.focus();
   srUpdatePreview();
 }
-document.querySelectorAll('.sr-format-btn').forEach(btn => {
+document.querySelectorAll('.sr-format-btn[data-md]').forEach(btn => {
   btn.addEventListener('click', () => srApplyFormat(btn.dataset.md));
 });
 
@@ -2068,6 +2090,161 @@ document.addEventListener('keydown', e => {
     srSetExpanded(false);
   }
 }, true);
+
+/* ── RICH-TEXT EDITOR ──
+   The default editing surface is a contenteditable pane that shows the
+   recipe already formatted (rendered with the site's own renderMd()).
+   The raw-markdown textarea (#srBody) stays as the "Markdown" mode and
+   as the stored form. To avoid lossy round-trips, the rich pane is only
+   converted back to markdown if the user actually edited it. */
+let srMode = 'rich';
+let srRichDirty = false;
+try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (e) {}
+
+function srHtmlToMd(root) {
+  const blocks = [];
+  const BLOCK = /^(P|DIV|H[1-6]|UL|OL|LI|TABLE|HR|BLOCKQUOTE|PRE)$/;
+  const inl = node => {
+    let s = '';
+    node.childNodes.forEach(n => {
+      // Literal asterisks (footnote markers etc.) are written as an HTML
+      // entity so they can't be mistaken for markdown bold/italic/bullets.
+      if (n.nodeType === 3) { s += n.nodeValue.replace(/[\s\u00a0]+/g, ' ').replace(/\*/g, '&#42;'); return; }
+      if (n.nodeType !== 1) return;
+      const t = n.tagName;
+      if (t === 'BR') { s += ' '; return; }
+      const c = inl(n);
+      if (t === 'STRONG' || t === 'B' || t === 'EM' || t === 'I') {
+        const m = (t === 'STRONG' || t === 'B') ? '**' : '*';
+        const core = c.trim();
+        if (!core) { s += c; return; }
+        s += (/^\s/.test(c) ? ' ' : '') + m + core + m + (/\s$/.test(c) ? ' ' : '');
+      } else s += c;
+    });
+    return s;
+  };
+  const clean = s => s.replace(/\s+/g, ' ').trim();
+  const walk = parent => {
+    let buf = '';
+    const flushBuf = () => { const t = clean(buf); if (t) blocks.push(t); buf = ''; };
+    parent.childNodes.forEach(n => {
+      if (n.nodeType === 3) { buf += n.nodeValue; return; }
+      if (n.nodeType !== 1) return;
+      const t = n.tagName;
+      if (!BLOCK.test(t)) {
+        if (t === 'BR') { flushBuf(); return; }
+        buf += inl({ childNodes: [n] }); return;
+      }
+      flushBuf();
+      if (/^H[1-6]$/.test(t)) {
+        const lv = Math.min(parseInt(t[1], 10), 4);
+        const c = clean(inl(n)); if (c) blocks.push('#'.repeat(lv) + ' ' + c);
+      } else if (t === 'UL' || t === 'OL') {
+        const items = [];
+        const collect = (list, ordered) => {
+          let i = 0;
+          list.childNodes.forEach(li => {
+            if (li.nodeType !== 1) return;
+            if (li.tagName === 'UL' || li.tagName === 'OL') { collect(li, li.tagName === 'OL'); return; }
+            if (li.tagName !== 'LI') return;
+            i++;
+            const own = document.createElement('div');
+            const nested = [];
+            li.childNodes.forEach(c => {
+              if (c.nodeType === 1 && (c.tagName === 'UL' || c.tagName === 'OL')) nested.push(c);
+              else own.appendChild(c.cloneNode(true));
+            });
+            const txt = clean(inl(own));
+            if (txt) items.push((ordered ? i + '. ' : '* ') + txt);
+            nested.forEach(nl => collect(nl, nl.tagName === 'OL'));
+          });
+        };
+        collect(n, t === 'OL');
+        if (items.length) blocks.push(items.join('\n'));
+      } else if (t === 'HR') {
+        blocks.push('---');
+      } else if (t === 'TABLE') {
+        const rows = [...n.querySelectorAll('tr')].map(tr => [...tr.children].map(c => clean(inl(c)) || ' '));
+        if (rows.length) {
+          const line = r => '| ' + r.join(' | ') + ' |';
+          const out = [line(rows[0]), line(rows[0].map(() => '---'))];
+          rows.slice(1).forEach(r => out.push(line(r)));
+          blocks.push(out.join('\n'));
+        }
+      } else if (n.classList && n.classList.contains('note-block')) {
+        const c = clean(inl(n)); if (c) blocks.push('*' + c + '*');
+      } else if ([...n.children].some(ch => BLOCK.test(ch.tagName))) {
+        walk(n);
+      } else {
+        const c = clean(inl(n)); if (c) blocks.push(c);
+      }
+    });
+    flushBuf();
+  };
+  walk(root);
+  return blocks.join('\n\n');
+}
+
+function srGetBody() {
+  if (srMode === 'rich') {
+    return srRichDirty
+      ? srHtmlToMd(document.getElementById('srRich')).trim()
+      : document.getElementById('srBody').value.trim();
+  }
+  return document.getElementById('srBody').value.trim();
+}
+function srLoadBody(md) {
+  document.getElementById('srBody').value = md;
+  document.getElementById('srRich').innerHTML = renderMd(md);
+  srRichDirty = false;
+  srUpdatePreview();
+}
+function srSetMode(mode) {
+  if (mode === srMode) return;
+  const ta = document.getElementById('srBody');
+  const rich = document.getElementById('srRich');
+  if (mode === 'md') {
+    if (srRichDirty) { ta.value = srHtmlToMd(rich); srRichDirty = false; }
+    srUpdatePreview();
+  } else {
+    rich.innerHTML = renderMd(ta.value);
+    srRichDirty = false;
+  }
+  srMode = mode;
+  document.getElementById('srEditor').dataset.mode = mode;
+  document.getElementById('srModeBtn').textContent = mode === 'rich' ? '</> Markdown' : '✎ Rich text';
+}
+document.getElementById('srModeBtn').addEventListener('click', () => srSetMode(srMode === 'rich' ? 'md' : 'rich'));
+document.getElementById('srRich').addEventListener('input', () => { srRichDirty = true; });
+// Paste: plain text only (no stray fonts/colors). Multi-line pasted text is
+// run through the same markdown renderer, so pasted "## Heading / * item"
+// text lands already formatted.
+document.getElementById('srRich').addEventListener('paste', e => {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  if (!text) return;
+  if (/\n/.test(text.trim())) document.execCommand('insertHTML', false, renderMd(text.trim()));
+  else document.execCommand('insertText', false, text);
+  srRichDirty = true;
+});
+// Keep the text selection when a toolbar button is pressed.
+document.getElementById('srFormatToolbar').addEventListener('mousedown', e => {
+  if (e.target.closest('button')) e.preventDefault();
+});
+function srRichFormat(kind) {
+  const rich = document.getElementById('srRich');
+  rich.focus();
+  const blockNow = () => (document.queryCommandValue('formatBlock') || '').toLowerCase().replace(/[<>]/g, '');
+  if (kind === 'bold') document.execCommand('bold');
+  else if (kind === 'italic') document.execCommand('italic');
+  else if (kind === 'bullet') document.execCommand('insertUnorderedList');
+  else if (kind === 'number') document.execCommand('insertOrderedList');
+  else if (kind === 'heading' || kind === 'subheading') {
+    const tag = kind === 'heading' ? 'h2' : 'h3';
+    document.execCommand('formatBlock', false, blockNow() === tag ? 'p' : tag);
+  }
+  srRichDirty = true;
+}
 
 /* ── LIVE PREVIEW ── */
 // Reuses the site's own renderMd()/inline() -- same rendering path
@@ -2118,7 +2295,8 @@ function srResetForm() {
   const form = document.getElementById('submitRecipeForm');
   if (form) form.reset();
   srSelectedPhotoDataUrl = null;
-  srUpdatePreview();
+  srLoadBody('');
+  if (srMode !== 'rich') srSetMode('rich');
   const label = document.getElementById('srPhotoLabel');
   if (label) {
     label.textContent = 'Add a photo (optional)';
@@ -2139,7 +2317,7 @@ document.getElementById('submitRecipeForm').addEventListener('submit', async e =
   const submitBtn = document.getElementById('srSubmitBtn');
   const name = document.getElementById('srName').value.trim();
   const title = document.getElementById('srTitle').value.trim();
-  const body = document.getElementById('srBody').value.trim();
+  const body = srGetBody();
   const category = document.getElementById('srCategory').value;
   const familyTag = document.getElementById('srFamilyTag').value;
 
@@ -2148,6 +2326,12 @@ document.getElementById('submitRecipeForm').addEventListener('submit', async e =
 
   if (!title || !body) {
     statusEl.textContent = 'Please enter at least a title and the recipe itself.';
+    statusEl.className = 'note-status error';
+    return;
+  }
+  const maxBody = editTarget ? 20000 : 8000;
+  if (body.length > maxBody) {
+    statusEl.textContent = 'That recipe is too long (' + body.length + ' of ' + maxBody + ' characters). Please shorten it.';
     statusEl.className = 'note-status error';
     return;
   }
