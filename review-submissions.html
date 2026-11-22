@@ -255,7 +255,10 @@ function renderList(docs) {
     ? `${docs.length} pending submission${docs.length === 1 ? '' : 's'} (${docs.filter(x => x.type === 'edit').length} edit${docs.filter(x => x.type === 'edit').length === 1 ? '' : 's'})`
     : '';
   submissionsById = {};
-  docs.forEach(d => { submissionsById[d.id] = d; });
+  // The site's rich-text editor stores literal asterisks as "&#42;" so they
+  // can't be misread as markdown. Turn them back into plain "*" so the
+  // copied text matches what's already in 1Password.
+  docs.forEach(d => { if (d.body) d.body = d.body.replace(/&#42;/g, '*'); submissionsById[d.id] = d; });
   if (!docs.length) {
     listEl.innerHTML = '<div class="empty-state">No pending recipe submissions.</div>';
     return;

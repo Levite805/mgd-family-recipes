@@ -2009,7 +2009,7 @@ function srSetEditMode(target) {
   banner.hidden = !isEdit;
   banner.textContent = isEdit ? 'Editing: ' + target.title + ' (change anything below)' : '';
   document.getElementById('srEditNote').hidden = !isEdit;
-  document.getElementById('srBody').maxLength = isEdit ? 20000 : 8000;
+  document.getElementById('srBody').maxLength = isEdit ? 50000 : 8000;
 }
 document.getElementById('suggestEditBtn').addEventListener('click', () => {
   const r = RECIPES.find(x => x.uuid === currentRecipeUuid);
@@ -2329,7 +2329,7 @@ document.getElementById('submitRecipeForm').addEventListener('submit', async e =
     statusEl.className = 'note-status error';
     return;
   }
-  const maxBody = editTarget ? 20000 : 8000;
+  const maxBody = editTarget ? 50000 : 8000;
   if (body.length > maxBody) {
     statusEl.textContent = 'That recipe is too long (' + body.length + ' of ' + maxBody + ' characters). Please shorten it.';
     statusEl.className = 'note-status error';
