@@ -1184,10 +1184,8 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
         Share a family recipe! It'll be reviewed before being added to the site.
       </p>
       <form class="submit-recipe-form" id="submitRecipeForm">
-        <input type="text" class="note-input" id="srName" placeholder="Your name (optional)" maxlength="60">
         <input type="text" class="note-input" id="srTitle" placeholder="Recipe title" maxlength="120" required>
         <div class="sr-edit-banner" id="srEditBanner" hidden></div>
-        <input type="text" class="note-input" id="srEditNote" placeholder="What should change, and why? (optional)" maxlength="1000" hidden>
 
         <div class="sr-select-row">
           <div class="sr-select-col">
@@ -2018,7 +2016,6 @@ function srSetEditMode(target) {
   const banner = document.getElementById('srEditBanner');
   banner.hidden = !isEdit;
   banner.textContent = isEdit ? 'Editing: ' + target.title + ' (change anything below)' : '';
-  document.getElementById('srEditNote').hidden = !isEdit;
   document.getElementById('srBody').maxLength = isEdit ? 50000 : 8000;
 }
 document.getElementById('suggestEditBtn').addEventListener('click', () => {
@@ -2352,13 +2349,13 @@ document.getElementById('submitRecipeForm').addEventListener('submit', async e =
   e.preventDefault();
   const statusEl = document.getElementById('srStatus');
   const submitBtn = document.getElementById('srSubmitBtn');
-  const name = document.getElementById('srName').value.trim();
+  const name = '';
   const title = document.getElementById('srTitle').value.trim();
   const body = srGetBody();
   const category = document.getElementById('srCategory').value;
   const familyTag = document.getElementById('srFamilyTag').value;
 
-  const editNote = document.getElementById('srEditNote').value.trim();
+  const editNote = '';
   const editTarget = srEditTarget;
 
   if (!title || !body) {
