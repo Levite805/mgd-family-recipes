@@ -32,6 +32,8 @@ h1 { font-size: 1.3rem; margin: 0 0 4px; }
 .card-title { font-size: 1.05rem; font-weight: 700; margin: 0; }
 .card-meta { font-size: 0.78rem; color: var(--text-muted); }
 .card-meta strong { color: var(--text-sub); font-weight: 600; }
+.edit-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); border: 1.5px solid var(--accent); border-radius: 10px; padding: 1px 8px; margin-right: 8px; vertical-align: middle; }
+.edit-note { font-size: 0.85rem; margin: 8px 0; padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--bg); }
 .card-photo { max-width: 220px; max-height: 220px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: block; margin: 10px 0; object-fit: cover; }
 .card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 4px; }
 button {
@@ -65,7 +67,7 @@ summary { cursor: pointer; font-size: 0.82rem; color: var(--accent); font-weight
 <body>
 <div class="wrap">
   <h1>Recipe Submissions</h1>
-  <p class="subtitle">Pending recipes submitted through the public site. Copy the title and recipe text into a new 1Password item, then mark it handled here.</p>
+  <p class="subtitle">Pending recipes and suggested edits submitted through the public site. Copy the title and recipe text into a new 1Password item, then mark it handled here.</p>
   <div class="status-line" id="statusLine">Loading…</div>
   <div id="list"></div>
 </div>
@@ -250,7 +252,7 @@ function renderList(docs) {
   const listEl = document.getElementById('list');
   const statusEl = document.getElementById('statusLine');
   statusEl.textContent = docs.length
-    ? `${docs.length} pending submission${docs.length === 1 ? '' : 's'}`
+    ? `${docs.length} pending submission${docs.length === 1 ? '' : 's'} (${docs.filter(x => x.type === 'edit').length} edit${docs.filter(x => x.type === 'edit').length === 1 ? '' : 's'})`
     : '';
   submissionsById = {};
   docs.forEach(d => { submissionsById[d.id] = d; });
@@ -261,7 +263,7 @@ function renderList(docs) {
   listEl.innerHTML = docs.map(d => `
     <div class="card" data-id="${escHtml(d.id)}">
       <div class="card-top">
-        <h2 class="card-title">${escHtml(d.title)}</h2>
+        <h2 class="card-title">${d.type === 'edit' ? '<span class="edit-badge">Edit</span>' : ''}${escHtml(d.title)}</h2>
         <span class="card-meta">${d.createdAt ? timeAgo(d.createdAt) : ''}</span>
       </div>
       <div class="card-meta">
@@ -269,11 +271,13 @@ function renderList(docs) {
         ${d.category ? ` &middot; <strong>Category:</strong> ${escHtml(CAT_LABELS[d.category] || d.category)}` : ''}
         ${d.familyTag ? ` &middot; <strong>Family tag:</strong> ${escHtml(d.familyTag)}` : ''}
       </div>
+      ${d.type === 'edit' ? `<div class="card-meta"><strong>Suggested edit to:</strong> <a href="recipes.html#recipe-${encodeURIComponent(d.recipeUuid || '')}" target="_blank" rel="noopener">${escHtml(d.recipeTitle || d.title)}</a>${d.recipeTitle && d.recipeTitle !== d.title ? ` (title changed to "${escHtml(d.title)}")` : ''}</div>` : ''}
+      ${d.editNote ? `<div class="edit-note"><strong>What should change:</strong> ${escHtml(d.editNote)}</div>` : ''}
       ${d.photoData ? `<img class="card-photo" src="${d.photoData}" alt="Submitted photo">` : ''}
       <div class="card-actions">
         <button data-action="copy-title">Copy title</button><span class="copy-flash">Copied!</span>
         ${d.familyTag ? `<button data-action="copy-tag">Copy tag</button><span class="copy-flash">Copied!</span>` : ''}
-        <button data-action="copy-body">Copy recipe text</button><span class="copy-flash">Copied!</span>
+        <button data-action="copy-body">Copy ${d.type === 'edit' ? 'updated' : 'recipe'} text</button><span class="copy-flash">Copied!</span>
         <button class="handle-btn" data-action="mark-handled">Mark handled</button>
       </div>
       <details>
