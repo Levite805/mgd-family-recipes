@@ -207,6 +207,13 @@ main {
   .modal-header-actions { gap: 5px; }
   .share-btn { padding: 0 10px; }
   .share-btn-label { display: none; }
+  /* Recipe/Tools modal headers carry six round buttons now (Suggest edit
+     was added), which no longer fit beside the title on a phone and
+     pushed the modal wider than the screen. Put the action buttons on
+     their own row above the title instead. */
+  .modal-header { flex-wrap: wrap; }
+  .modal-header-actions:has(.dark-toggle) { order: -1; width: 100%; justify-content: flex-end; flex-wrap: wrap; }
+  .modal-header-meta { flex-basis: 100%; }
 }
 
 /* ── RECIPE CARD ── */
