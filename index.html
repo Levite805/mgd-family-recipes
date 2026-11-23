@@ -2783,7 +2783,7 @@ function scaleIngredientHTML(html, factor) {
     `|(^|[^\\w.\\/])(\\d+)(?![\\d\\/]|\\.\\d)`,
     'g'
   );
-  const scaleText = text => text.replace(pattern, (match, mixW, mixN, mixD, num1, den1, wholeNum, fracChar1, decNum, fracCharAlone, prefix, plainInt) => {
+  const scaleRaw = text => text.replace(pattern, (match, mixW, mixN, mixD, num1, den1, wholeNum, fracChar1, decNum, fracCharAlone, prefix, plainInt) => {
     let value;
     if (mixW !== undefined) value = parseFloat(mixW) + parseFloat(mixN) / parseFloat(mixD);
     else if (num1 !== undefined && den1 !== undefined) value = parseFloat(num1) / parseFloat(den1);
@@ -2798,6 +2798,17 @@ function scaleIngredientHTML(html, factor) {
     else return match;
     return formatScaledQty(value * factor);
   });
+  // Physical dimensions (thickness, piece/pan size) don't change when a
+  // recipe is scaled: "1-inch thick", "1/2 inch cubes", "4-5 cm", "9-inch pie".
+  // They're swapped for a placeholder while scaling, then put back.
+  const NUMX = '(?:\\d+\\s*[' + FRAC_CHARS + ']|\\d+(?:\\.\\d+)?(?:\\s+\\d+\\/\\d+)?|\\d+\\/\\d+|[' + FRAC_CHARS + '])';
+  const dimRe = new RegExp(NUMX + '(?:\\s*(?:-|–|to|by|x)\\s*' + NUMX + ')*\\s*-?\\s*(?:inch(?:es)?\\b|in\\.|cm\\b|mm\\b|centimeters?\\b|millimeters?\\b|")', 'gi');
+  const scaleText = text => {
+    const saved = [];
+    const masked = text.replace(dimRe, m => { saved.push(m); return ''; });
+    let i = 0;
+    return scaleRaw(masked).replace(//g, () => saved[i++]);
+  };
   // HTML tags/attributes are never scaled. Parentheticals are scaled when
   // they're an equivalent of the main amount ("2 cups (250 g)") but NOT
   // when they describe a container or are just a note: can sizes like
