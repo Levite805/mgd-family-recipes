@@ -452,6 +452,9 @@ html.dark .icon-sun  { display: block; }
 }
 .wake-toggle:hover { background: var(--chip-hover); border-color: var(--accent); }
 .wake-toggle svg { width: 16px; height: 16px; }
+.wake-toggle .icon-eye-on { display: none; }
+.wake-toggle.active .icon-eye-on { display: block; }
+.wake-toggle.active .icon-eye-off { display: none; }
 .wake-toggle.active {
   background: var(--accent-light); border-color: var(--accent); color: var(--accent);
 }
@@ -963,9 +966,13 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
           </svg>
         </button>
         <button class="wake-toggle" id="wakeToggle" data-toggle="wake" aria-label="Keep Awake Off" title="Keep Awake Off">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="icon-eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
             <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
           </svg>
         </button>
         <button class="tools-toggle" id="toolsToggle" data-toggle="tools" aria-label="Cooking Tools" title="Cooking Tools">
@@ -1049,9 +1056,13 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
           </svg>
         </button>
         <button class="wake-toggle" data-toggle="wake" aria-label="Keep Awake Off" title="Keep Awake Off">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="icon-eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
             <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
           </svg>
         </button>
         <button class="tools-toggle" data-toggle="tools" aria-label="Cooking Tools" title="Cooking Tools">
@@ -1154,9 +1165,13 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
           </svg>
         </button>
         <button class="wake-toggle" data-toggle="wake" aria-label="Keep Awake Off" title="Keep Awake Off">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="icon-eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
             <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
           </svg>
         </button>
         <button class="close-btn tools-collapse-btn" id="toolsCollapseBtn" type="button" aria-label="Collapse or expand tools">
