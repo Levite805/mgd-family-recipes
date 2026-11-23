@@ -2668,7 +2668,7 @@ function scaleIngredientHTML(html, factor) {
     `|(^|[^\\w.\\/])(\\d+)(?![\\d\\/]|\\.\\d)`,
     'g'
   );
-  return html.replace(pattern, (match, num1, den1, wholeNum, fracChar1, decNum, fracCharAlone, prefix, plainInt) => {
+  const scaleText = text => text.replace(pattern, (match, num1, den1, wholeNum, fracChar1, decNum, fracCharAlone, prefix, plainInt) => {
     let value;
     if (num1 !== undefined && den1 !== undefined) value = parseFloat(num1) / parseFloat(den1);
     else if (wholeNum !== undefined) value = parseFloat(wholeNum) + FRAC_TO_DEC[fracChar1];
@@ -2678,6 +2678,10 @@ function scaleIngredientHTML(html, factor) {
     else return match;
     return formatScaledQty(value * factor);
   });
+  // Leave HTML tags/attributes and anything in parentheses untouched --
+  // e.g. can sizes like "(15 oz)" or "(#2)" don't change when a recipe is
+  // scaled. Only the text outside them is scaled.
+  return html.split(/(<[^>]+>|\([^)]*\))/).map((part, i) => (i % 2 ? part : scaleText(part))).join('');
 }
 
 let scaleTargetLis = [];
