@@ -2771,7 +2771,8 @@ function formatScaledQty(value) {
 function scaleIngredientHTML(html, factor) {
   if (factor === 1) return html;
   const pattern = new RegExp(
-    `(\\d+(?:\\.\\d+)?)\\s*\\/\\s*(\\d+)` +           // "1/2"
+    `(\\d+)\\s+(\\d+)\\s*\\/\\s*(\\d+)` +             // "1 1/2" (mixed number)
+    `|(\\d+(?:\\.\\d+)?)\\s*\\/\\s*(\\d+)` +           // "1/2"
     `|(\\d+)\\s+([${FRAC_CHARS}])` +                    // "1 ½"
     `|(\\d+\\.\\d+)` +                                  // "1.5"
     `|([${FRAC_CHARS}])` +                              // "½"
@@ -2782,20 +2783,50 @@ function scaleIngredientHTML(html, factor) {
     `|(^|[^\\w.\\/])(\\d+)(?![\\d\\/]|\\.\\d)`,
     'g'
   );
-  const scaleText = text => text.replace(pattern, (match, num1, den1, wholeNum, fracChar1, decNum, fracCharAlone, prefix, plainInt) => {
+  const scaleText = text => text.replace(pattern, (match, mixW, mixN, mixD, num1, den1, wholeNum, fracChar1, decNum, fracCharAlone, prefix, plainInt) => {
     let value;
-    if (num1 !== undefined && den1 !== undefined) value = parseFloat(num1) / parseFloat(den1);
+    if (mixW !== undefined) value = parseFloat(mixW) + parseFloat(mixN) / parseFloat(mixD);
+    else if (num1 !== undefined && den1 !== undefined) value = parseFloat(num1) / parseFloat(den1);
     else if (wholeNum !== undefined) value = parseFloat(wholeNum) + FRAC_TO_DEC[fracChar1];
     else if (decNum !== undefined) value = parseFloat(decNum);
     else if (fracCharAlone !== undefined) value = FRAC_TO_DEC[fracCharAlone];
-    else if (plainInt !== undefined) return prefix + formatScaledQty(parseFloat(plainInt) * factor);
+    else if (plainInt !== undefined) {
+      // "00" pizza flour etc. is a product name, not an amount.
+      if (/^0\d/.test(plainInt)) return match;
+      return prefix + formatScaledQty(parseFloat(plainInt) * factor);
+    }
     else return match;
     return formatScaledQty(value * factor);
   });
-  // Leave HTML tags/attributes and anything in parentheses untouched --
-  // e.g. can sizes like "(15 oz)" or "(#2)" don't change when a recipe is
-  // scaled. Only the text outside them is scaled.
-  return html.split(/(<[^>]+>|\([^)]*\))/).map((part, i) => (i % 2 ? part : scaleText(part))).join('');
+  // HTML tags/attributes are never scaled. Parentheticals are scaled when
+  // they're an equivalent of the main amount ("2 cups (250 g)") but NOT
+  // when they describe a container or are just a note: can sizes like
+  // "1 can (15 oz)" / "2 (15 oz) cans", "(16-20 count)", "(see note 1)".
+  const plain = h => h.replace(/<[^>]+>/g, '');
+  const tokenRe = /<[^>]+>|\([^)]*\)/g;
+  let out = '', last = 0, m;
+  while ((m = tokenRe.exec(html))) {
+    out += scaleText(html.slice(last, m.index));
+    const tok = m[0];
+    const scaleIt = tok[0] === '(' &&
+      parenShouldScale(plain(html.slice(0, m.index)), tok, plain(html.slice(m.index + tok.length)));
+    out += scaleIt ? scaleText(tok) : tok;
+    last = m.index + tok.length;
+  }
+  return out + scaleText(html.slice(last));
+}
+
+const CONTAINER_WORD = 'cans?|jars?|packages?|pkgs?|packets?|bags?|bottles?|boxe?s?|cartons?|tubs?|tubes?|containers?';
+function parenShouldScale(before, paren, after) {
+  const word = s => (s || '').replace(/[^A-Za-z]/g, '');
+  const lastWord = before.trim().split(/\s+/).pop();
+  const firstWord = after.trim().split(/\s+/)[0];
+  const container = new RegExp('^(?:' + CONTAINER_WORD + ')$', 'i');
+  if (container.test(word(lastWord)) || container.test(word(firstWord))) return false;   // "1 can (15 oz)", "(15 oz) cans"
+  const inner = paren.slice(1, -1);
+  if (new RegExp('\\b(?:' + CONTAINER_WORD + ')\\b', 'i').test(inner)) return false;       // "(from an 8 oz jar)"
+  if (/\b(?:note|see|count|each|protein)\b|%/i.test(inner)) return false;                     // notes, counts, percentages
+  return true;
 }
 
 let scaleTargetLis = [];
