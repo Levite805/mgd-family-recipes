@@ -2682,12 +2682,16 @@ function setupScaleBar() {
   const bar = document.getElementById('scaleBar');
   const content = document.getElementById('modalContent');
   const heading = Array.from(content.querySelectorAll('h1, h2, h3, h4'))
-    .find(h => /ingredient/i.test(h.textContent));
+    .find(h => /ingredient|things you need/i.test(h.textContent));
 
   scaleTargetLis = [];
   if (heading) {
+    // Keep collecting lists through any deeper sub-headings (e.g. an
+    // "Ingredients" h3 followed by "For the sauce" h4 groups); stop only
+    // at a heading of the same or higher level (e.g. "Instructions").
+    const level = parseInt(heading.tagName[1], 10);
     let el = heading.nextElementSibling;
-    while (el && !/^H[1-6]$/.test(el.tagName)) {
+    while (el && !(/^H[1-6]$/.test(el.tagName) && parseInt(el.tagName[1], 10) <= level)) {
       if (el.tagName === 'UL' || el.tagName === 'OL') {
         scaleTargetLis.push(...el.querySelectorAll('li'));
       }
