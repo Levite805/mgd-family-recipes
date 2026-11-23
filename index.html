@@ -2661,16 +2661,20 @@ function scaleIngredientHTML(html, factor) {
     `|(\\d+)\\s+([${FRAC_CHARS}])` +                    // "1 ½"
     `|(\\d+\\.\\d+)` +                                  // "1.5"
     `|([${FRAC_CHARS}])` +                              // "½"
-    `|\\b(\\d+)\\b`,                                    // "2"
+    // Whole numbers, including ones glued to a unit ("4T", "2lb", "5g").
+    // The old \\b(\\d+)\\b skipped those because there is no word boundary
+    // between "4" and "T". Prefix is captured (not a lookbehind) for
+    // older Safari; it keeps us from matching digits inside words/decimals.
+    `|(^|[^\\w.\\/])(\\d+)(?![\\d\\/]|\\.\\d)`,
     'g'
   );
-  return html.replace(pattern, (match, num1, den1, wholeNum, fracChar1, decNum, fracCharAlone, plainInt) => {
+  return html.replace(pattern, (match, num1, den1, wholeNum, fracChar1, decNum, fracCharAlone, prefix, plainInt) => {
     let value;
     if (num1 !== undefined && den1 !== undefined) value = parseFloat(num1) / parseFloat(den1);
     else if (wholeNum !== undefined) value = parseFloat(wholeNum) + FRAC_TO_DEC[fracChar1];
     else if (decNum !== undefined) value = parseFloat(decNum);
     else if (fracCharAlone !== undefined) value = FRAC_TO_DEC[fracCharAlone];
-    else if (plainInt !== undefined) value = parseFloat(plainInt);
+    else if (plainInt !== undefined) return prefix + formatScaledQty(parseFloat(plainInt) * factor);
     else return match;
     return formatScaledQty(value * factor);
   });
