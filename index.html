@@ -815,6 +815,56 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
 .sr-photo-feature { border: none; background: var(--chip-bg); color: var(--text-sub); font-size: 0.72rem; font-weight: 600; padding: 7px 4px; cursor: pointer; font-family: inherit; }
 .sr-photo-item.featured .sr-photo-feature { background: var(--accent); color: #fff; }
 .sr-photo-remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; border: none; background: rgba(0,0,0,0.65); color: #fff; cursor: pointer; font-size: 0.75rem; line-height: 1; }
+/* ── DOCKED COOKING TOOLS ──
+   When Tools is opened from inside a recipe, it docks instead of covering
+   the recipe: a bottom drawer on phones/tablets (collapsible), a side
+   panel on wide screens. Opened from the main page it stays a normal modal. */
+.tools-drag-handle, .tools-collapse-btn, .tools-timer-summary { display: none; }
+#toolsModalOverlay.docked.open {
+  background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
+  pointer-events: none; align-items: flex-end; justify-content: center;
+}
+#toolsModalOverlay.docked .modal {
+  pointer-events: auto; width: 100%; max-width: none;
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.35);
+}
+@media (max-width: 999px) {
+  body.tools-docked { --dock-h: 42vh; --dock-h: 42dvh; }
+  body.tools-docked.tools-collapsed { --dock-h: 72px; }
+  body.tools-docked #modalOverlay { padding-bottom: var(--dock-h); }
+  body.tools-docked #modalOverlay .modal { max-height: calc(100vh - var(--dock-h) - 12px); max-height: calc(100dvh - var(--dock-h) - 12px); }
+  #toolsModalOverlay.docked .modal {
+    height: var(--dock-h); max-height: none; border-radius: 16px 16px 0 0;
+  }
+  #toolsModalOverlay.docked .tools-drag-handle {
+    display: flex; justify-content: center; align-items: center; height: 22px;
+    position: sticky; top: 0; z-index: 2; background: var(--surface);
+    cursor: grab; touch-action: none;
+  }
+  .tools-drag-handle span { width: 40px; height: 4px; border-radius: 2px; background: var(--border); }
+  #toolsModalOverlay.docked .modal-header { top: 22px; padding: 6px 14px 8px; flex-wrap: nowrap; align-items: center; }
+  #toolsModalOverlay.docked .modal-header-meta { flex: 1 1 auto; flex-basis: auto; }
+  #toolsModalOverlay.docked .modal-header-actions:has(.dark-toggle) { order: 0; width: auto; justify-content: flex-end; flex-wrap: nowrap; }
+  #toolsModalOverlay.docked .modal-title { margin-bottom: 0; font-size: 1rem; }
+  #toolsModalOverlay.docked .tools-collapse-btn { display: flex; }
+  #toolsModalOverlay.docked.collapsed .tools-collapse-btn svg { transform: rotate(180deg); }
+  #toolsModalOverlay.docked.collapsed .tools-timer-summary {
+    display: block; font-size: 0.78rem; color: var(--accent); font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;
+  }
+  #toolsModalOverlay.docked.collapsed .modal { overflow: hidden; height: auto; }
+  #toolsModalOverlay.docked.collapsed .tools-tabs,
+  #toolsModalOverlay.docked.collapsed .tools-panel { display: none; }
+}
+@media (min-width: 1000px) {
+  body.tools-docked { --dock-w: min(420px, 36vw); }
+  body.tools-docked #modalOverlay { padding-right: var(--dock-w); }
+  #toolsModalOverlay.docked.open { align-items: stretch; justify-content: flex-end; }
+  #toolsModalOverlay.docked .modal {
+    width: var(--dock-w); height: 100%; max-height: none; border-radius: 0;
+    box-shadow: -8px 0 30px rgba(0,0,0,0.35);
+  }
+}
 .sr-textarea { min-height: 220px; resize: vertical; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.82rem; }
 .sr-preview {
   border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);
@@ -1084,9 +1134,11 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
 
 <div class="modal-overlay" id="toolsModalOverlay" role="dialog" aria-modal="true">
   <div class="modal" id="toolsModal">
+    <div class="tools-drag-handle" id="toolsDragHandle" role="button" aria-label="Drag to collapse or expand tools"><span></span></div>
     <div class="modal-header">
       <div class="modal-header-meta">
         <div class="modal-title">Cooking Tools</div>
+        <div class="tools-timer-summary" id="toolsTimerSummary"></div>
       </div>
       <div class="modal-header-actions">
         <button class="dark-toggle" data-toggle="dark" aria-label="Dark Mode Off" title="Dark Mode Off">
@@ -1106,6 +1158,9 @@ html.dark .toast { background: #EDEAE4; color: #1C1C1C; }
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
             <circle cx="12" cy="12" r="3"/>
           </svg>
+        </button>
+        <button class="close-btn tools-collapse-btn" id="toolsCollapseBtn" type="button" aria-label="Collapse or expand tools">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l5 5 5-5"/></svg>
         </button>
         <button class="close-btn" id="toolsCloseBtn" aria-label="Close">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -1652,6 +1707,7 @@ function closeModal() {
   currentRecipeUuid = null;
   history.replaceState(null, '', location.pathname);
   if (window.hideNotesForRecipe) window.hideNotesForRecipe();
+  if (document.getElementById('toolsModalOverlay').classList.contains('docked')) closeToolsModal();
 }
 
 // Combines curated photos (modalPhotoBase) with any visitor-submitted
@@ -1962,15 +2018,56 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
 
 /* ── TOOLS MODAL OPEN/CLOSE + TABS ── */
 toolsToggleBtns().forEach(btn => btn.addEventListener('click', () => {
-  document.getElementById('toolsModalOverlay').classList.add('open');
+  const ov = document.getElementById('toolsModalOverlay');
+  const recipeOpen = document.getElementById('modalOverlay').classList.contains('open');
+  // Toggle: tapping the wrench again while the dock is open closes it.
+  if (ov.classList.contains('open') && ov.classList.contains('docked')) { closeToolsModal(); return; }
+  // Inside a recipe, dock the tools beside/below it instead of covering it.
+  ov.classList.toggle('docked', recipeOpen);
+  document.body.classList.toggle('tools-docked', recipeOpen);
+  setToolsCollapsed(false);
+  ov.classList.add('open');
   document.body.style.overflow = 'hidden';
 }));
+function setToolsCollapsed(on) {
+  document.getElementById('toolsModalOverlay').classList.toggle('collapsed', on);
+  document.body.classList.toggle('tools-collapsed', on);
+}
+function toolsIsCollapsed() { return document.getElementById('toolsModalOverlay').classList.contains('collapsed'); }
+document.getElementById('toolsCollapseBtn').addEventListener('click', () => setToolsCollapsed(!toolsIsCollapsed()));
+// Collapsed drawer: tapping its title area expands it again.
+document.querySelector('#toolsModal .modal-header-meta').addEventListener('click', () => {
+  if (toolsIsCollapsed()) setToolsCollapsed(false);
+});
+// Drag handle: swipe down to collapse, swipe up to expand, tap to toggle.
+(function () {
+  const handle = document.getElementById('toolsDragHandle');
+  let startY = null;
+  handle.addEventListener('pointerdown', e => { startY = e.clientY; try { handle.setPointerCapture(e.pointerId); } catch (_) {} });
+  handle.addEventListener('pointerup', e => {
+    if (startY === null) return;
+    const dy = e.clientY - startY; startY = null;
+    if (dy > 30) setToolsCollapsed(true);
+    else if (dy < -30) setToolsCollapsed(false);
+    else setToolsCollapsed(!toolsIsCollapsed());
+  });
+  handle.addEventListener('pointercancel', () => { startY = null; });
+})();
+// Summary of running timers, shown in the header while the drawer is collapsed.
+function updateToolsTimerSummary() {
+  const el = document.getElementById('toolsTimerSummary');
+  if (!el) return;
+  const items = [];
+  activeTimers.forEach(t => items.push((t.done ? '\u2713 ' : '') + t.label + ' ' + (t.done ? 'done' : formatTime(t.remaining))));
+  el.textContent = items.length > 2 ? items.slice(0, 2).join(' \u00b7 ') + ' +' + (items.length - 2) : items.join(' \u00b7 ');
+}
 document.getElementById('toolsCloseBtn').addEventListener('click', closeToolsModal);
 document.getElementById('toolsModalOverlay').addEventListener('click', e => {
   if (e.target.id === 'toolsModalOverlay') closeToolsModal();
 });
 function closeToolsModal() {
-  document.getElementById('toolsModalOverlay').classList.remove('open');
+  document.getElementById('toolsModalOverlay').classList.remove('open', 'docked', 'collapsed');
+  document.body.classList.remove('tools-docked', 'tools-collapsed');
   // Tools can now be opened from on top of the recipe modal (the tools
   // button was added to that modal's header) -- only clear the page
   // scroll lock if the recipe modal isn't still open underneath it.
@@ -2582,6 +2679,7 @@ function renderTimers() {
   const list = document.getElementById('timerList');
   list.innerHTML = '';
   activeTimers.forEach(timer => list.appendChild(buildTimerCard(timer)));
+  updateToolsTimerSummary();
 }
 
 function buildTimerCard(timer) {
@@ -2604,6 +2702,7 @@ function buildTimerCard(timer) {
 }
 
 function updateTimerCard(timer) {
+  updateToolsTimerSummary();
   const card = document.getElementById('timer-card-' + timer.id);
   if (!card) return;
   card.classList.toggle('done', timer.done);
