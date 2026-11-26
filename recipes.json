@@ -5006,5 +5006,20 @@
     "createdAt": "2026-09-20T01:19:10Z",
     "updatedAt": "2026-09-21T18:31:48Z",
     "uuid": "nbmb5lcsgr4nwkwsnxq55e3a4q"
+  },
+  {
+    "uuid": "2jzwfy4tcfcu46aqkiwaca6xia",
+    "overview": {
+      "title": "Angela's Cheesecake",
+      "ainfo": "Angela's Cheesecake",
+      "tags": [
+        "Gruenberg Recipes"
+      ]
+    },
+    "details": {
+      "notesPlain": "### Ingredients\n\n* 1 and 3/4 cup Graham cracker crumbs\n* 1/3 cup Butter\n* 2 eight ounce Philly Cream Cheese\n* 3/4 cup of sugar\n* 1 tablespoon of vanilla extract\n* 4 eggs\n* 1/4 cup of flour\n* 1 can of Cherries\n\n### Instructions\n\n1. Combine graham cracker crumbs with melted butter. Line the pan and push mixture up the sides. Make it thin. Place in fridge.\n2. Preheat oven to 325 degrees.\n3. Beat both cream cheese packs, 3/4 cup of sugar, and 1/4 cup of flour, and Vanilla extract until smooth. Add one egg at a time until all 4 are in and mixture is smooth.\n4. Take pan out of fridge and pour mixture in pan.\n5. Place in middle rack.\n6. 1 hour and 10 minutes to 1 hour and 20 minutes. There should be cracks on top."
+    },
+    "createdAt": "2026-11-26T04:35:50Z",
+    "updatedAt": "2026-11-26T04:35:50Z"
   }
 ]
